@@ -5,8 +5,8 @@ class Config {
     this.systemProgramId = '11111111111111111111111111111111',
     this.tokenProgramId = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
     this.associatedTokenProgramId = 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL',
-    this.tokenMintId = '9teanB35j1TtCwY9F6GDfCrqr4mNyBw1HsS5QMC6S7EE',
-    this.teamTokenAccountId = '4AErJr6ibhF82kRiSKgat6qmdtnwwAz55BynDmi8RCTv',
+    this.tokenMintId = '7XUka7j8G1HbdQPu2WTfFitQ2dr4w6CqS7yPyV15UZqH',
+    this.teamTokenAccountId = '7WmS8RztXa6S6qNgUp3T3A2SMzF76i5k2PwsGRqy63gR',
     this.mintPoolWalletId = 'ARamwbZzoaRjiEnHM2oVmD5bqPpGPNuxUuXWRzsacgaz',
   });
 
