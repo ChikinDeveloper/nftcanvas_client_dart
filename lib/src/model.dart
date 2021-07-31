@@ -25,9 +25,9 @@ class NftCanvasInstructionMintPixel extends NftCanvasInstruction {
   List<int> pack() {
     final result = [
       0,
-      ...utils.packUInt32(index),
+      ...utils.packUInt(index, 4),
       ...color,
-      ...utils.packUInt64(sellPrice),
+      ...utils.packUInt(sellPrice, 8),
     ];
     assert(result.length <= NftCanvasInstruction.packedSize);
     result.addAll(
@@ -49,7 +49,7 @@ class NftCanvasInstructionUpdatePixelColor extends NftCanvasInstruction {
   List<int> pack() {
     final result = [
       1,
-      ...utils.packUInt32(index),
+      ...utils.packUInt(index, 4),
       ...color,
     ];
     assert(result.length <= NftCanvasInstruction.packedSize);
@@ -72,8 +72,8 @@ class NftCanvasInstructionSellPixel extends NftCanvasInstruction {
   List<int> pack() {
     final result = [
       2,
-      ...utils.packUInt32(index),
-      ...utils.packUInt64(price),
+      ...utils.packUInt(index, 4),
+      ...utils.packUInt(price, 8),
     ];
     assert(result.length <= NftCanvasInstruction.packedSize);
     result.addAll(
@@ -97,8 +97,8 @@ class NftCanvasInstructionBuyPixel extends NftCanvasInstruction {
   List<int> pack() {
     final result = [
       3,
-      ...utils.packUInt32(index),
-      ...utils.packUInt64(price),
+      ...utils.packUInt(index, 4),
+      ...utils.packUInt(price, 8),
       (directOnly) ? 1 : 0,
     ];
     assert(result.length <= NftCanvasInstruction.packedSize);

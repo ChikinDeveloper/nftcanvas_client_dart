@@ -12,7 +12,7 @@ Future<String> getPixelAccountId({
     seeds: [
       solana.base58decode(programId),
       utf8.encode('pixel'),
-      packUInt32(index),
+      packUInt(index, 4),
     ],
     programId: programId,
   );
@@ -60,10 +60,12 @@ int unpackUInt(List<int> data, {Endian endian = Endian.little}) {
   return result;
 }
 
-List<int> packUInt32(int data, {Endian endian = Endian.little}) {
-  return Uint8List(4)..buffer.asByteData().setUint32(0, data, endian);
-}
-
-List<int> packUInt64(int data, {Endian endian = Endian.little}) {
-  return Uint8List(8)..buffer.asByteData().setUint64(0, data, endian);
+List<int> packUInt(int data, int byteCount, {Endian endian = Endian.little}) {
+  var result = List.generate(byteCount, (index) {
+    return (data ~/ math.pow(2, 8*index)) % 256;
+  });
+  if (endian == Endian.big) {
+    result = result.reversed.toList();
+  }
+  return result;
 }
