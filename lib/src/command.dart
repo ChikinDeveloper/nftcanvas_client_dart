@@ -3,6 +3,7 @@ import 'package:chikin_nft_canvas_client/src/model.dart';
 import 'package:solana/solana.dart';
 
 import 'utils.dart' as utils;
+import 'client.dart' as client;
 
 Future<Instruction> mintPixel({
   required Config config,
@@ -39,8 +40,8 @@ Future<Instruction> updatePixelColor({
 }) async {
   final pixelAccountId =
       await utils.getPixelAccountId(programId: config.programId, index: index);
-  final pixelAccount = await rpcClient.getAccountInfo(pixelAccountId);
-  final pixelAccountState = Pixel.unpack(pixelAccount!.data);
+  final pixelAccountState = await client.getPixel(config: config, rpcClient: rpcClient, index: index);
+  if (pixelAccountState == null) throw Exception('Pixel not found index=$index');
   return Instruction(
     programId: config.programId,
     accounts: [
@@ -64,8 +65,8 @@ Future<Instruction> sellPixel({
 }) async {
   final pixelAccountId =
       await utils.getPixelAccountId(programId: config.programId, index: index);
-  final pixelAccount = await rpcClient.getAccountInfo(pixelAccountId);
-  final pixelAccountState = Pixel.unpack(pixelAccount!.data.cast<int>());
+  final pixelAccountState = await client.getPixel(config: config, rpcClient: rpcClient, index: index);
+  if (pixelAccountState == null) throw Exception('Pixel not found index=$index');
 
   final tradePoolId = await utils.getTradePoolId(programId: config.programId);
   final pixelOwnerId = base58encode(pixelAccountState.ownerWallet);
@@ -114,8 +115,8 @@ Future<Instruction> buyPixel({
 }) async {
   final pixelAccountId =
       await utils.getPixelAccountId(programId: config.programId, index: index);
-  final pixelAccount = await rpcClient.getAccountInfo(pixelAccountId);
-  final pixelAccountState = Pixel.unpack(pixelAccount!.data);
+  final pixelAccountState = await client.getPixel(config: config, rpcClient: rpcClient, index: index);
+  if (pixelAccountState == null) throw Exception('Pixel not found index=$index');
 
   final tradePoolId = await utils.getTradePoolId(programId: config.programId);
   final pixelOwnerId = base58encode(pixelAccountState.ownerWallet);
