@@ -1,12 +1,13 @@
 class Config {
   const Config({
-    this.programId = 'C68zxDpmRxYCCkV1tNkkYHAtw2PK2mzoD1wt5aGofEwC',
+    this.programId = '5mmFdCFD2csnoCS1XcnTvpFGsWW6JvCRVxtCr91mtSKb',
     this.rentSysvarId = 'SysvarRent111111111111111111111111111111111',
     this.systemProgramId = '11111111111111111111111111111111',
     this.tokenProgramId = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
-    this.associatedTokenProgramId = 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL',
-    this.tokenMintId = '7XUka7j8G1HbdQPu2WTfFitQ2dr4w6CqS7yPyV15UZqH',
-    this.teamTokenAccountId = '7WmS8RztXa6S6qNgUp3T3A2SMzF76i5k2PwsGRqy63gR',
+    this.associatedTokenProgramId =
+        'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL',
+    this.tokenMintId = '8s9FCz99Wcr3dHpiauFRi6bLXzshXfcGTfgQE7UEopVx',
+    this.teamTokenAccountId = 'Esi6Z7reZt9NjZ2TeTFRXcTez1XA7764dE9bZoKCdjTb',
     this.mintPoolWalletId = 'ARamwbZzoaRjiEnHM2oVmD5bqPpGPNuxUuXWRzsacgaz',
   });
 
