@@ -20,5 +20,12 @@ class Config {
   final String teamTokenAccountId;
   final String mintPoolWalletId;
 
-  static const defaultValue = Config();
+  static const mainnet = Config();
+
+  static const devnet = Config(
+    programId: 'C68zxDpmRxYCCkV1tNkkYHAtw2PK2mzoD1wt5aGofEwC',
+    tokenMintId: '7XUka7j8G1HbdQPu2WTfFitQ2dr4w6CqS7yPyV15UZqH',
+    teamTokenAccountId: '7WmS8RztXa6S6qNgUp3T3A2SMzF76i5k2PwsGRqy63gR',
+    mintPoolWalletId: 'ARamwbZzoaRjiEnHM2oVmD5bqPpGPNuxUuXWRzsacgaz',
+  );
 }
