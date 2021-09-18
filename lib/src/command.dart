@@ -3,7 +3,6 @@ import 'package:chikin_nft_canvas_client/src/model.dart';
 import 'package:solana/solana.dart';
 
 import 'utils.dart' as utils;
-import 'client.dart' as client;
 
 Future<Instruction> mintPixel({
   required Config config,
@@ -33,22 +32,19 @@ Future<Instruction> mintPixel({
 }
 
 Future<Instruction> updatePixelColor({
-  required RPCClient rpcClient,
   required Config config,
   required int index,
+  required String ownerWallet,
   required List<int> color,
 }) async {
   final pixelAccountId =
       await utils.getPixelAccountId(programId: config.programId, index: index);
-  final pixelAccountState = await client.getPixel(config: config, rpcClient: rpcClient, index: index);
-  if (pixelAccountState == null) throw Exception('Pixel not found index=$index');
   return Instruction(
     programId: config.programId,
     accounts: [
       AccountMeta.readonly(pubKey: config.programId, isSigner: false),
       AccountMeta.writeable(pubKey: pixelAccountId, isSigner: false),
-      AccountMeta.readonly(
-          pubKey: base58encode(pixelAccountState.ownerWallet), isSigner: true),
+      AccountMeta.readonly(pubKey: ownerWallet, isSigner: true),
     ],
     data: NftCanvasInstructionUpdatePixelColor(
       index: index,
@@ -58,18 +54,16 @@ Future<Instruction> updatePixelColor({
 }
 
 Future<Instruction> sellPixel({
-  required RPCClient rpcClient,
   required Config config,
   required int index,
+  required String ownerWallet,
   required int price,
 }) async {
   final pixelAccountId =
       await utils.getPixelAccountId(programId: config.programId, index: index);
-  final pixelAccountState = await client.getPixel(config: config, rpcClient: rpcClient, index: index);
-  if (pixelAccountState == null) throw Exception('Pixel not found index=$index');
 
   final tradePoolId = await utils.getTradePoolId(programId: config.programId);
-  final pixelOwnerId = base58encode(pixelAccountState.ownerWallet);
+  final pixelOwnerId = ownerWallet;
 
   return Instruction(
     programId: config.programId,
@@ -80,12 +74,11 @@ Future<Instruction> sellPixel({
       AccountMeta.readonly(pubKey: config.teamTokenAccountId, isSigner: false),
       AccountMeta.readonly(pubKey: tradePoolId, isSigner: false),
       AccountMeta.readonly(
-        pubKey:
-            await utils.getTokenAccountId(
-                tokenProgramId: config.tokenProgramId,
-                associatedTokenProgramId: config.associatedTokenProgramId,
-                tokenMintId: config.tokenMintId,
-                ownerId: tradePoolId),
+        pubKey: await utils.getTokenAccountId(
+            tokenProgramId: config.tokenProgramId,
+            associatedTokenProgramId: config.associatedTokenProgramId,
+            tokenMintId: config.tokenMintId,
+            ownerId: tradePoolId),
         isSigner: false,
       ),
       AccountMeta.readonly(pubKey: pixelOwnerId, isSigner: true),
@@ -106,20 +99,18 @@ Future<Instruction> sellPixel({
 }
 
 Future<Instruction> buyPixel({
-  required RPCClient rpcClient,
   required Config config,
   required String buyerWalletId,
   required int index,
+  required String ownerWallet,
   required int price,
   required bool directOnly,
 }) async {
   final pixelAccountId =
       await utils.getPixelAccountId(programId: config.programId, index: index);
-  final pixelAccountState = await client.getPixel(config: config, rpcClient: rpcClient, index: index);
-  if (pixelAccountState == null) throw Exception('Pixel not found index=$index');
 
   final tradePoolId = await utils.getTradePoolId(programId: config.programId);
-  final pixelOwnerId = base58encode(pixelAccountState.ownerWallet);
+  final pixelOwnerId = ownerWallet;
 
   return Instruction(
     programId: config.programId,
@@ -130,12 +121,11 @@ Future<Instruction> buyPixel({
       AccountMeta.readonly(pubKey: config.teamTokenAccountId, isSigner: false),
       AccountMeta.readonly(pubKey: tradePoolId, isSigner: false),
       AccountMeta.readonly(
-        pubKey:
-            await utils.getTokenAccountId(
-                tokenProgramId: config.tokenProgramId,
-                associatedTokenProgramId: config.associatedTokenProgramId,
-                tokenMintId: config.tokenMintId,
-                ownerId: tradePoolId),
+        pubKey: await utils.getTokenAccountId(
+            tokenProgramId: config.tokenProgramId,
+            associatedTokenProgramId: config.associatedTokenProgramId,
+            tokenMintId: config.tokenMintId,
+            ownerId: tradePoolId),
         isSigner: false,
       ),
       AccountMeta.readonly(pubKey: pixelOwnerId, isSigner: false),

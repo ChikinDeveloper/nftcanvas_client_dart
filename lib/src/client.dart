@@ -6,7 +6,7 @@ import 'package:solana/solana.dart';
 
 import 'utils.dart' as utils;
 
-Future<Pixel?> getPixel({
+Future<Pixel?> getPixelByIndex({
   required Config config,
   required RPCClient rpcClient,
   required int index,
@@ -19,7 +19,7 @@ Future<Pixel?> getPixel({
   return Pixel.unpack(dataBytes);
 }
 
-Future<List<Pixel?>> getPixels({
+Future<List<Pixel?>> getPixelsByIndex({
   required Config config,
   required RPCClient rpcClient,
   required List<int> indexList,
@@ -36,4 +36,32 @@ Future<List<Pixel?>> getPixels({
     final dataBytes = base64.decode(account.data[0]);
     return Pixel.unpack(dataBytes);
   }).toList();
+}
+
+Future<List<Pixel>> listPixels({
+  required Config config,
+  required RPCClient rpcClient,
+  String? owner,
+}) async {
+  final rawResult = await rpcClient.getProgramAccounts(
+    programId: config.programId,
+    filters: [
+      {'dataSize': Pixel.packedSize},
+      if (owner != null)
+        {
+          'memcmp': {
+            'offset': 7,
+            'bytes': owner,
+          }
+        }
+    ],
+  );
+  final result = <Pixel>[];
+  for (final item in rawResult) {
+    final dataStr = item['account']['data'][0];
+    final data = base64Decode(dataStr);
+    final pixel = Pixel.unpack(data);
+    result.add(pixel);
+  }
+  return result;
 }
