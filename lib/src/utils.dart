@@ -46,6 +46,32 @@ Future<String> getTokenAccountId({
   );
 }
 
+Future<String> getStakePoolId({
+  required String programId,
+}) {
+  return solana.findProgramAddress(
+    seeds: [
+      solana.base58decode(programId),
+      utf8.encode('stake_pool'),
+    ],
+    programId: programId,
+  );
+}
+
+Future<String> getStakeClientId({
+  required String programId,
+  required String owner,
+}) {
+  return solana.findProgramAddress(
+    seeds: [
+      solana.base58decode(programId),
+      solana.base58decode(owner),
+      utf8.encode('stake_client'),
+    ],
+    programId: programId,
+  );
+}
+
 int unpackUInt(List<int> data, {Endian endian = Endian.little}) {
   var slice = List.of(data);
   if (endian == Endian.big) {
@@ -62,7 +88,7 @@ int unpackUInt(List<int> data, {Endian endian = Endian.little}) {
 
 List<int> packUInt(int data, int byteCount, {Endian endian = Endian.little}) {
   var result = List.generate(byteCount, (index) {
-    return (data ~/ math.pow(2, 8*index)) % 256;
+    return (data ~/ math.pow(2, 8 * index)) % 256;
   });
   if (endian == Endian.big) {
     result = result.reversed.toList();

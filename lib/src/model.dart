@@ -3,11 +3,18 @@ import 'utils.dart' as utils;
 // Instruction
 
 abstract class NftCanvasInstruction {
-  static const packedSize = 16;
+  static const packedSize = 17;
 
   NftCanvasInstruction._();
 
   List<int> pack();
+
+  static List<int> formatPacked(List<int> data) {
+    assert(data.length <= NftCanvasInstruction.packedSize);
+    data.addAll(
+        List.filled(NftCanvasInstruction.packedSize - data.length, 0));
+    return data;
+  }
 }
 
 class NftCanvasInstructionMintPixel extends NftCanvasInstruction {
@@ -29,10 +36,7 @@ class NftCanvasInstructionMintPixel extends NftCanvasInstruction {
       ...color,
       ...utils.packUInt(sellPrice, 8),
     ];
-    assert(result.length <= NftCanvasInstruction.packedSize);
-    result.addAll(
-        List.filled(NftCanvasInstruction.packedSize - result.length, 0));
-    return result;
+    return NftCanvasInstruction.formatPacked(result);
   }
 }
 
@@ -52,10 +56,7 @@ class NftCanvasInstructionUpdatePixelColor extends NftCanvasInstruction {
       ...utils.packUInt(index, 4),
       ...color,
     ];
-    assert(result.length <= NftCanvasInstruction.packedSize);
-    result.addAll(
-        List.filled(NftCanvasInstruction.packedSize - result.length, 0));
-    return result;
+    return NftCanvasInstruction.formatPacked(result);
   }
 }
 
@@ -75,10 +76,7 @@ class NftCanvasInstructionSellPixel extends NftCanvasInstruction {
       ...utils.packUInt(index, 4),
       ...utils.packUInt(price, 8),
     ];
-    assert(result.length <= NftCanvasInstruction.packedSize);
-    result.addAll(
-        List.filled(NftCanvasInstruction.packedSize - result.length, 0));
-    return result;
+    return NftCanvasInstruction.formatPacked(result);
   }
 }
 
@@ -101,10 +99,103 @@ class NftCanvasInstructionBuyPixel extends NftCanvasInstruction {
       ...utils.packUInt(price, 8),
       (directOnly) ? 1 : 0,
     ];
-    assert(result.length <= NftCanvasInstruction.packedSize);
-    result.addAll(
-        List.filled(NftCanvasInstruction.packedSize - result.length, 0));
-    return result;
+    return NftCanvasInstruction.formatPacked(result);
+  }
+}
+
+class NftCanvasInstructionInitStakePool extends NftCanvasInstruction {
+  final int rewardAmountPerPixelPerTick;
+  final int tickDurationSeconds;
+
+  NftCanvasInstructionInitStakePool({
+    required this.rewardAmountPerPixelPerTick,
+    required this.tickDurationSeconds,
+  }) : super._();
+
+  @override
+  List<int> pack() {
+    final result = [
+      4,
+      ...utils.packUInt(rewardAmountPerPixelPerTick, 8),
+      ...utils.packUInt(tickDurationSeconds, 8),
+    ];
+    return NftCanvasInstruction.formatPacked(result);
+  }
+}
+
+class NftCanvasInstructionUpdateStakePool extends NftCanvasInstruction {
+  final int rewardAmountPerPixelPerTick;
+  final int tickDurationSeconds;
+
+  NftCanvasInstructionUpdateStakePool({
+    required this.rewardAmountPerPixelPerTick,
+    required this.tickDurationSeconds,
+  }) : super._();
+
+  @override
+  List<int> pack() {
+    final result = [
+      5,
+      ...utils.packUInt(rewardAmountPerPixelPerTick, 8),
+      ...utils.packUInt(tickDurationSeconds, 8),
+    ];
+    return NftCanvasInstruction.formatPacked(result);
+  }
+}
+
+class NftCanvasInstructionInitStakeClient extends NftCanvasInstruction {
+  NftCanvasInstructionInitStakeClient() : super._();
+
+  @override
+  List<int> pack() {
+    final result = [6];
+    return NftCanvasInstruction.formatPacked(result);
+  }
+}
+
+class NftCanvasInstructionStake extends NftCanvasInstruction {
+  final int x;
+  final int y;
+  final int width;
+  final int height;
+
+  NftCanvasInstructionStake({
+    required this.x,
+    required this.y,
+    required this.width,
+    required this.height,
+  }) : super._();
+
+  @override
+  List<int> pack() {
+    final result = [
+      7,
+      ...utils.packUInt(x, 4),
+      ...utils.packUInt(y, 4),
+      ...utils.packUInt(width, 4),
+      ...utils.packUInt(height, 4),
+    ];
+    return NftCanvasInstruction.formatPacked(result);
+  }
+}
+
+class NftCanvasInstructionUnstake extends NftCanvasInstruction {
+  NftCanvasInstructionUnstake() : super._();
+
+  @override
+  List<int> pack() {
+    final result = [8];
+    return NftCanvasInstruction.formatPacked(result);
+  }
+}
+
+class NftCanvasInstructionHarvest extends NftCanvasInstruction {
+  NftCanvasInstructionHarvest() : super._();
+
+  @override
+  List<int> pack() {
+    final result = [9];
+    return NftCanvasInstruction.formatPacked(result);
   }
 }
 
@@ -151,5 +242,44 @@ class PixelBuyInfo {
   PixelBuyInfo({
     required this.price,
     required this.buyerWallet,
+  });
+}
+
+class StakeClient {
+  static const packedSize = 25;
+
+  final StakeClientStaking? staking;
+
+  StakeClient({this.staking});
+
+  factory StakeClient.unpack(List<int> data) {
+    assert(data.length == packedSize, '${data.length} != $packedSize');
+    return StakeClient(
+      staking: (data[0] == 0)
+          ? null
+          : StakeClientStaking(
+              x: utils.unpackUInt(data.sublist(1, 5)),
+              y: utils.unpackUInt(data.sublist(5, 9)),
+              width: utils.unpackUInt(data.sublist(9, 13)),
+              height: utils.unpackUInt(data.sublist(13, 17)),
+              lockTime: utils.unpackUInt(data.sublist(17, 25)),
+            ),
+    );
+  }
+}
+
+class StakeClientStaking {
+  final int x;
+  final int y;
+  final int width;
+  final int height;
+  final int lockTime;
+
+  StakeClientStaking({
+    required this.x,
+    required this.y,
+    required this.width,
+    required this.height,
+    required this.lockTime,
   });
 }
