@@ -157,7 +157,7 @@ Future<Instruction> buyPixel({
 
 Future<Instruction> initStakePool({
   required Config config,
-  required int rewardAmountPerPixelPerTick,
+  required int rewardAmountPerTick,
   required int tickDurationSeconds,
 }) async {
   final stakePoolId = await utils.getStakePoolId(programId: config.programId);
@@ -174,13 +174,14 @@ Future<Instruction> initStakePool({
       AccountMeta.readonly(pubKey: config.tokenProgramId, isSigner: false),
       AccountMeta.readonly(pubKey: config.associatedTokenProgramId, isSigner: false),
       AccountMeta.readonly(pubKey: config.rentSysvarId, isSigner: false),
-      AccountMeta.readonly(pubKey: config.tokenMintId, isSigner: false),
+      AccountMeta.readonly(pubKey: config.clockSysvarId, isSigner: false),
       AccountMeta.writeable(pubKey: config.teamWalletId, isSigner: true),
+      AccountMeta.readonly(pubKey: config.tokenMintId, isSigner: false),
       AccountMeta.readonly(pubKey: stakePoolId, isSigner: false),
       AccountMeta.readonly(pubKey: stakePoolTokenAccountId, isSigner: false),
     ],
     data: NftCanvasInstructionInitStakePool(
-      rewardAmountPerPixelPerTick: rewardAmountPerPixelPerTick,
+      rewardAmountPerTick: rewardAmountPerTick,
       tickDurationSeconds: tickDurationSeconds,
     ).pack(),
   );

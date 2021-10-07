@@ -103,11 +103,11 @@ class NftCanvasInstructionBuyPixel extends NftCanvasInstruction {
 }
 
 class NftCanvasInstructionInitStakePool extends NftCanvasInstruction {
-  final int rewardAmountPerPixelPerTick;
+  final int rewardAmountPerTick;
   final int tickDurationSeconds;
 
   NftCanvasInstructionInitStakePool({
-    required this.rewardAmountPerPixelPerTick,
+    required this.rewardAmountPerTick,
     required this.tickDurationSeconds,
   }) : super._();
 
@@ -115,7 +115,7 @@ class NftCanvasInstructionInitStakePool extends NftCanvasInstruction {
   List<int> pack() {
     final result = [
       4,
-      ...utils.packUInt(rewardAmountPerPixelPerTick, 8),
+      ...utils.packUInt(rewardAmountPerTick, 8),
       ...utils.packUInt(tickDurationSeconds, 8),
     ];
     return NftCanvasInstruction.formatPacked(result);
