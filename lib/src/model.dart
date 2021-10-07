@@ -11,8 +11,7 @@ abstract class NftCanvasInstruction {
 
   static List<int> formatPacked(List<int> data) {
     assert(data.length <= NftCanvasInstruction.packedSize);
-    data.addAll(
-        List.filled(NftCanvasInstruction.packedSize - data.length, 0));
+    data.addAll(List.filled(NftCanvasInstruction.packedSize - data.length, 0));
     return data;
   }
 }
@@ -246,29 +245,25 @@ class PixelBuyInfo {
 }
 
 class StakeClient {
-  static const packedSize = 25;
+  static const packedSize = 4 * (StakeClientStaking.packedSize + 1);
 
-  final StakeClientStaking? staking;
+  final List<StakeClientStaking?> stakingList;
 
-  StakeClient({this.staking});
+  StakeClient({required this.stakingList});
 
   factory StakeClient.unpack(List<int> data) {
     assert(data.length == packedSize, '${data.length} != $packedSize');
     return StakeClient(
-      staking: (data[0] == 0)
-          ? null
-          : StakeClientStaking(
-              x: utils.unpackUInt(data.sublist(1, 5)),
-              y: utils.unpackUInt(data.sublist(5, 9)),
-              width: utils.unpackUInt(data.sublist(9, 13)),
-              height: utils.unpackUInt(data.sublist(13, 17)),
-              lockTime: utils.unpackUInt(data.sublist(17, 25)),
-            ),
-    );
+        stakingList: List.generate(4, (index) {
+      return StakeClientStaking.unpack(
+          data.sublist(index * 25, (index + 1) * 25));
+    }));
   }
 }
 
 class StakeClientStaking {
+  static const packedSize = 24;
+
   final int x;
   final int y;
   final int width;
@@ -282,4 +277,17 @@ class StakeClientStaking {
     required this.height,
     required this.lockTime,
   });
+
+  static StakeClientStaking? unpack(List<int> data) {
+    assert(data.length == packedSize, '${data.length} != $packedSize');
+    return (data[0] == 0)
+        ? null
+        : StakeClientStaking(
+            x: utils.unpackUInt(data.sublist(1, 5)),
+            y: utils.unpackUInt(data.sublist(5, 9)),
+            width: utils.unpackUInt(data.sublist(9, 13)),
+            height: utils.unpackUInt(data.sublist(13, 17)),
+            lockTime: utils.unpackUInt(data.sublist(17, 25)),
+          );
+  }
 }
