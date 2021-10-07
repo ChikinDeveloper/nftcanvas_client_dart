@@ -172,7 +172,8 @@ Future<Instruction> initStakePool({
       AccountMeta.readonly(pubKey: config.programId, isSigner: false),
       AccountMeta.readonly(pubKey: config.systemProgramId, isSigner: false),
       AccountMeta.readonly(pubKey: config.tokenProgramId, isSigner: false),
-      AccountMeta.readonly(pubKey: config.associatedTokenProgramId, isSigner: false),
+      AccountMeta.readonly(
+          pubKey: config.associatedTokenProgramId, isSigner: false),
       AccountMeta.readonly(pubKey: config.rentSysvarId, isSigner: false),
       AccountMeta.readonly(pubKey: config.clockSysvarId, isSigner: false),
       AccountMeta.writeable(pubKey: config.teamWalletId, isSigner: true),
@@ -213,7 +214,8 @@ Future<Instruction> initStakeClient({
   required String stakeClientOwner,
 }) async {
   final stakePoolId = await utils.getStakePoolId(programId: config.programId);
-  final stakeClientId = await utils.getStakeClientId(programId: config.programId, owner: stakeClientOwner);
+  final stakeClientId = await utils.getStakeClientId(
+      programId: config.programId, owner: stakeClientOwner);
   final stakeClientTokenAccountId = await utils.getTokenAccountId(
       tokenProgramId: config.tokenProgramId,
       associatedTokenProgramId: config.associatedTokenProgramId,
@@ -225,7 +227,8 @@ Future<Instruction> initStakeClient({
       AccountMeta.readonly(pubKey: config.programId, isSigner: false),
       AccountMeta.readonly(pubKey: config.systemProgramId, isSigner: false),
       AccountMeta.readonly(pubKey: config.tokenProgramId, isSigner: false),
-      AccountMeta.readonly(pubKey: config.associatedTokenProgramId, isSigner: false),
+      AccountMeta.readonly(
+          pubKey: config.associatedTokenProgramId, isSigner: false),
       AccountMeta.readonly(pubKey: config.rentSysvarId, isSigner: false),
       AccountMeta.readonly(pubKey: config.tokenMintId, isSigner: false),
       AccountMeta.readonly(pubKey: stakePoolId, isSigner: false),
@@ -240,13 +243,15 @@ Future<Instruction> initStakeClient({
 Future<Instruction> stake({
   required Config config,
   required String stakeClientOwner,
+  required int slot,
   required int x,
   required int y,
   required int width,
   required int height,
 }) async {
   final stakePoolId = await utils.getStakePoolId(programId: config.programId);
-  final stakeClientId = await utils.getStakeClientId(programId: config.programId, owner: stakeClientOwner);
+  final stakeClientId = await utils.getStakeClientId(
+      programId: config.programId, owner: stakeClientOwner);
   return Instruction(
     programId: config.programId,
     accounts: [
@@ -258,7 +263,11 @@ Future<Instruction> stake({
       AccountMeta.writeable(pubKey: stakeClientId, isSigner: false),
     ],
     data: NftCanvasInstructionStake(
-      x: x, y: y, width: width, height: height,
+      slot: slot,
+      x: x,
+      y: y,
+      width: width,
+      height: height,
     ).pack(),
   );
 }
@@ -266,6 +275,7 @@ Future<Instruction> stake({
 Future<Instruction> unstake({
   required Config config,
   required String stakeClientOwner,
+  required int slot,
 }) async {
   final stakePoolId = await utils.getStakePoolId(programId: config.programId);
   final stakePoolTokenAccountId = await utils.getTokenAccountId(
@@ -273,7 +283,8 @@ Future<Instruction> unstake({
       associatedTokenProgramId: config.associatedTokenProgramId,
       tokenMintId: config.tokenMintId,
       ownerId: stakePoolId);
-  final stakeClientId = await utils.getStakeClientId(programId: config.programId, owner: stakeClientOwner);
+  final stakeClientId = await utils.getStakeClientId(
+      programId: config.programId, owner: stakeClientOwner);
   final stakeClientTokenAccountId = await utils.getTokenAccountId(
       tokenProgramId: config.tokenProgramId,
       associatedTokenProgramId: config.associatedTokenProgramId,
@@ -291,7 +302,7 @@ Future<Instruction> unstake({
       AccountMeta.writeable(pubKey: stakeClientId, isSigner: false),
       AccountMeta.writeable(pubKey: stakeClientTokenAccountId, isSigner: false),
     ],
-    data: NftCanvasInstructionUnstake().pack(),
+    data: NftCanvasInstructionUnstake(slot: slot).pack(),
   );
 }
 
@@ -305,7 +316,8 @@ Future<Instruction> harvest({
       associatedTokenProgramId: config.associatedTokenProgramId,
       tokenMintId: config.tokenMintId,
       ownerId: stakePoolId);
-  final stakeClientId = await utils.getStakeClientId(programId: config.programId, owner: stakeClientOwner);
+  final stakeClientId = await utils.getStakeClientId(
+      programId: config.programId, owner: stakeClientOwner);
   final stakeClientTokenAccountId = await utils.getTokenAccountId(
       tokenProgramId: config.tokenProgramId,
       associatedTokenProgramId: config.associatedTokenProgramId,
@@ -326,4 +338,3 @@ Future<Instruction> harvest({
     data: NftCanvasInstructionHarvest().pack(),
   );
 }
-

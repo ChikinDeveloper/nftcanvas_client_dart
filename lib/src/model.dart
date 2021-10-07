@@ -3,7 +3,7 @@ import 'utils.dart' as utils;
 // Instruction
 
 abstract class NftCanvasInstruction {
-  static const packedSize = 17;
+  static const packedSize = 18;
 
   NftCanvasInstruction._();
 
@@ -153,12 +153,14 @@ class NftCanvasInstructionInitStakeClient extends NftCanvasInstruction {
 }
 
 class NftCanvasInstructionStake extends NftCanvasInstruction {
+  final int slot;
   final int x;
   final int y;
   final int width;
   final int height;
 
   NftCanvasInstructionStake({
+    required this.slot,
     required this.x,
     required this.y,
     required this.width,
@@ -169,6 +171,7 @@ class NftCanvasInstructionStake extends NftCanvasInstruction {
   List<int> pack() {
     final result = [
       7,
+      ...utils.packUInt(slot, 1),
       ...utils.packUInt(x, 4),
       ...utils.packUInt(y, 4),
       ...utils.packUInt(width, 4),
@@ -179,11 +182,18 @@ class NftCanvasInstructionStake extends NftCanvasInstruction {
 }
 
 class NftCanvasInstructionUnstake extends NftCanvasInstruction {
-  NftCanvasInstructionUnstake() : super._();
+  final int slot;
+
+  NftCanvasInstructionUnstake({
+    required this.slot,
+  }) : super._();
 
   @override
   List<int> pack() {
-    final result = [8];
+    final result = [
+      8,
+      ...utils.packUInt(slot, 1),
+    ];
     return NftCanvasInstruction.formatPacked(result);
   }
 }
