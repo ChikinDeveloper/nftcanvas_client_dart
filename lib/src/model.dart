@@ -254,6 +254,41 @@ class PixelBuyInfo {
   });
 }
 
+class StakePool {
+  static const packedSize = 2;
+
+  final int pixel_count;
+  final int lp_token_amount;
+  final int time0;
+  final int reward_amount_per_tick;
+  final int tick_duration_seconds;
+  final int harvestable_amount;
+  final int last_harvestable_amount_update_time;
+
+  StakePool({
+    required this.pixel_count,
+    required this.lp_token_amount,
+    required this.time0,
+    required this.reward_amount_per_tick,
+    required this.tick_duration_seconds,
+    required this.harvestable_amount,
+    required this.last_harvestable_amount_update_time,
+  });
+
+  factory StakePool.unpack(List<int> data) {
+    assert(data.length == packedSize, '${data.length} != $packedSize');
+    return StakePool(
+      pixel_count: utils.unpackUInt(data.sublist(0, 8)),
+      lp_token_amount: utils.unpackUInt(data.sublist(8, 16)),
+      time0: utils.unpackUInt(data.sublist(16, 24)),
+      reward_amount_per_tick: utils.unpackUInt(data.sublist(24, 32)),
+      tick_duration_seconds: utils.unpackUInt(data.sublist(32, 40)),
+      harvestable_amount: utils.unpackUInt(data.sublist(40, 48)),
+      last_harvestable_amount_update_time: utils.unpackUInt(data.sublist(48, 56)),
+    );
+  }
+}
+
 class StakeClient {
   static const packedSize = 4 * (StakeClientStaking.packedSize + 1);
 
