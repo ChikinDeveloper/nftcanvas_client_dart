@@ -335,4 +335,8 @@ class StakeClientStaking {
             lockTime: utils.unpackUInt(data.sublist(17, 25)),
           );
   }
+
+  int pixelCount() => width * height;
+
+  int lpTokenAmount() => width * height * lockTime;
 }
