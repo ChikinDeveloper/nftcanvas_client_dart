@@ -255,7 +255,7 @@ class PixelBuyInfo {
 }
 
 class StakePool {
-  static const packedSize = 2;
+  static const packedSize = 64;
 
   final int pixelCount;
   final int lpTokenAmount;
