@@ -7,7 +7,7 @@ class Config {
     this.tokenProgramId = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
     this.associatedTokenProgramId =
         'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL',
-    this.tokenMintId = '8s9FCz99Wcr3dHpiauFRi6bLXzshXfcGTfgQE7UEopVx',
+    this.ckcTokenMintId = '8s9FCz99Wcr3dHpiauFRi6bLXzshXfcGTfgQE7UEopVx',
     this.teamWalletId = 'DkmfiWSC4mnPvfMXZY2CkT4skvFkGr4u5DwRX2htRvJ2',
     this.teamTokenAccountId = 'Esi6Z7reZt9NjZ2TeTFRXcTez1XA7764dE9bZoKCdjTb',
     this.mintPoolWalletId = 'ARamwbZzoaRjiEnHM2oVmD5bqPpGPNuxUuXWRzsacgaz',
@@ -19,7 +19,7 @@ class Config {
   final String systemProgramId;
   final String tokenProgramId;
   final String associatedTokenProgramId;
-  final String tokenMintId;
+  final String ckcTokenMintId;
   final String teamWalletId;
   final String teamTokenAccountId;
   final String mintPoolWalletId;
@@ -28,7 +28,7 @@ class Config {
 
   static const devnet = Config(
     programId: 'C68zxDpmRxYCCkV1tNkkYHAtw2PK2mzoD1wt5aGofEwC',
-    tokenMintId: '7XUka7j8G1HbdQPu2WTfFitQ2dr4w6CqS7yPyV15UZqH',
+    ckcTokenMintId: '7XUka7j8G1HbdQPu2WTfFitQ2dr4w6CqS7yPyV15UZqH',
     teamTokenAccountId: '7WmS8RztXa6S6qNgUp3T3A2SMzF76i5k2PwsGRqy63gR',
     mintPoolWalletId: 'ARamwbZzoaRjiEnHM2oVmD5bqPpGPNuxUuXWRzsacgaz',
   );

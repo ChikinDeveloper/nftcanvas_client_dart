@@ -46,6 +46,18 @@ Future<String> getTokenAccountId({
   );
 }
 
+Future<String> getProgramAuthorityId({
+  required String programId,
+}) {
+  return solana.findProgramAddress(
+    seeds: [
+      solana.base58decode(programId),
+      utf8.encode('authority'),
+    ],
+    programId: programId,
+  );
+}
+
 Future<String> getStakePoolId({
   required String programId,
 }) {
@@ -58,15 +70,37 @@ Future<String> getStakePoolId({
   );
 }
 
-Future<String> getStakeClientId({
+Future<String> getStakedPixelsId({
   required String programId,
-  required String owner,
+  required String nftMint,
 }) {
   return solana.findProgramAddress(
     seeds: [
       solana.base58decode(programId),
-      solana.base58decode(owner),
-      utf8.encode('stake_client'),
+      solana.base58decode(nftMint),
+      utf8.encode('staked_pixels'),
+    ],
+    programId: programId,
+  );
+}
+
+Future<String> getStakedPixelsNftMintId({
+  required String programId,
+  required int x,
+  required int y,
+  required int width,
+  required int height,
+  required int nonce,
+}) {
+  return solana.findProgramAddress(
+    seeds: [
+      solana.base58decode(programId),
+      packUInt(x, 4),
+      packUInt(y, 4),
+      packUInt(width, 4),
+      packUInt(height, 4),
+      packUInt(nonce, 4),
+      utf8.encode('staked_pixels_nft_mint'),
     ],
     programId: programId,
   );
