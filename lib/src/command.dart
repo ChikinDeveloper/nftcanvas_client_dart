@@ -212,7 +212,6 @@ Future<Instruction> updateStakePool({
 Future<Instruction> stake({
   required Config config,
   required String owner,
-  required int slot,
   required int x,
   required int y,
   required int width,
