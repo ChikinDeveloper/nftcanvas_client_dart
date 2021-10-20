@@ -106,6 +106,24 @@ Future<String> getStakedPixelsNftMintId({
   );
 }
 
+Future<List<String>> listPixelIds({
+  required String programId,
+  required int x,
+  required int y,
+  required int width,
+  required int height,
+}) async {
+  final pixels = <String>[];
+  for (var j = y; j < y + height; j++) {
+    for (var i = x; i < x + width; i++) {
+      pixels.add(await getPixelAccountId(programId: programId, index: pixelPositionToIndex(i, j)));
+    }
+  }
+  return pixels;
+}
+
+int pixelPositionToIndex(int i, int j) => i + 1000 * j;
+
 int unpackUInt(List<int> data, {Endian endian = Endian.little}) {
   var slice = List.of(data);
   if (endian == Endian.big) {

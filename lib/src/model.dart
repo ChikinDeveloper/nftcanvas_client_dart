@@ -142,16 +142,6 @@ class NftCanvasInstructionUpdateStakePool extends NftCanvasInstruction {
   }
 }
 
-class NftCanvasInstructionInitStakeClient extends NftCanvasInstruction {
-  NftCanvasInstructionInitStakeClient() : super._();
-
-  @override
-  List<int> pack() {
-    final result = [6];
-    return NftCanvasInstruction.formatPacked(result);
-  }
-}
-
 class NftCanvasInstructionStake extends NftCanvasInstruction {
   final int x;
   final int y;
@@ -170,7 +160,7 @@ class NftCanvasInstructionStake extends NftCanvasInstruction {
   @override
   List<int> pack() {
     final result = [
-      7,
+      6,
       ...utils.packUInt(x, 4),
       ...utils.packUInt(y, 4),
       ...utils.packUInt(width, 4),
@@ -186,9 +176,7 @@ class NftCanvasInstructionUnstake extends NftCanvasInstruction {
 
   @override
   List<int> pack() {
-    final result = [
-      8,
-    ];
+    final result = [7];
     return NftCanvasInstruction.formatPacked(result);
   }
 }
@@ -198,7 +186,7 @@ class NftCanvasInstructionHarvest extends NftCanvasInstruction {
 
   @override
   List<int> pack() {
-    final result = [9];
+    final result = [8];
     return NftCanvasInstruction.formatPacked(result);
   }
 }
@@ -321,55 +309,3 @@ class StakedPixels {
 
   Future<String> nftMint(String programId) => utils.getStakedPixelsNftMintId(programId: programId, x: x, y: y, width: width, height: height, nonce: nonce);
 }
-
-// class StakeClient {
-//   static const packedSize = 4 * (StakeClientStaking.packedSize + 1);
-//
-//   final List<StakeClientStaking?> stakingList;
-//
-//   StakeClient({required this.stakingList});
-//
-//   factory StakeClient.unpack(List<int> data) {
-//     assert(data.length == packedSize, '${data.length} != $packedSize');
-//     return StakeClient(
-//         stakingList: List.generate(4, (index) {
-//       return StakeClientStaking.unpack(
-//           data.sublist(index * 25, (index + 1) * 25));
-//     }));
-//   }
-// }
-//
-// class StakeClientStaking {
-//   static const packedSize = 24;
-//
-//   final int x;
-//   final int y;
-//   final int width;
-//   final int height;
-//   final int lockTime;
-//
-//   StakeClientStaking({
-//     required this.x,
-//     required this.y,
-//     required this.width,
-//     required this.height,
-//     required this.lockTime,
-//   });
-//
-//   static StakeClientStaking? unpack(List<int> data) {
-//     assert(data.length == packedSize, '${data.length} != $packedSize');
-//     return (data[0] == 0)
-//         ? null
-//         : StakeClientStaking(
-//             x: utils.unpackUInt(data.sublist(1, 5)),
-//             y: utils.unpackUInt(data.sublist(5, 9)),
-//             width: utils.unpackUInt(data.sublist(9, 13)),
-//             height: utils.unpackUInt(data.sublist(13, 17)),
-//             lockTime: utils.unpackUInt(data.sublist(17, 25)),
-//           );
-//   }
-//
-//   int pixelCount() => width * height;
-//
-//   int lpTokenAmount() => width * height * lockTime;
-// }

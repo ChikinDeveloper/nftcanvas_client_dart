@@ -38,6 +38,14 @@ Future<List<Pixel?>> getPixelsByIndex({
   }).toList();
 }
 
+Future<StakedPixels?> getStakedPixels(
+    {required RPCClient rpcClient, required String accountId}) async {
+  final account = await rpcClient.getAccountInfo(accountId);
+  if (account == null) return null;
+  final dataBytes = base64.decode(account.data[0]);
+  return StakedPixels.unpack(dataBytes);
+}
+
 Future<List<Pixel>> listPixels({
   required Config config,
   required RPCClient rpcClient,
