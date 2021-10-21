@@ -291,7 +291,7 @@ class StakedPixels {
     required this.lockTime,
   });
 
-  static StakedPixels? unpack(List<int> data) {
+  static StakedPixels unpack(List<int> data) {
     assert(data.length == packedSize, '${data.length} != $packedSize');
     return StakedPixels(
       x: utils.unpackUInt(data.sublist(0, 4)),
