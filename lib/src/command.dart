@@ -143,7 +143,7 @@ Future<Instruction> buyPixel({
             tokenProgramId: config.tokenProgramId,
             associatedTokenProgramId: config.associatedTokenProgramId,
             tokenMintId: config.ckcTokenMintId,
-            ownerId: pixelOwnerId),
+            ownerId: buyerWalletId),
         isSigner: false,
       ),
     ],
