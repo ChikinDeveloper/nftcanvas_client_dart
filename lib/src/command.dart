@@ -73,7 +73,7 @@ Future<Instruction> sellPixel({
       AccountMeta.writeable(pubKey: pixelAccountId, isSigner: false),
       AccountMeta.readonly(pubKey: config.teamTokenAccountId, isSigner: false),
       AccountMeta.readonly(pubKey: tradePoolId, isSigner: false),
-      AccountMeta.readonly(
+      AccountMeta.writeable(
         pubKey: await utils.getTokenAccountId(
             tokenProgramId: config.tokenProgramId,
             associatedTokenProgramId: config.associatedTokenProgramId,
@@ -82,7 +82,7 @@ Future<Instruction> sellPixel({
         isSigner: false,
       ),
       AccountMeta.readonly(pubKey: pixelOwnerId, isSigner: true),
-      AccountMeta.readonly(
+      AccountMeta.writeable(
         pubKey: await utils.getTokenAccountId(
             tokenProgramId: config.tokenProgramId,
             associatedTokenProgramId: config.associatedTokenProgramId,
@@ -118,9 +118,9 @@ Future<Instruction> buyPixel({
       AccountMeta.readonly(pubKey: config.programId, isSigner: false),
       AccountMeta.readonly(pubKey: config.tokenProgramId, isSigner: false),
       AccountMeta.writeable(pubKey: pixelAccountId, isSigner: false),
-      AccountMeta.readonly(pubKey: config.teamTokenAccountId, isSigner: false),
+      AccountMeta.writeable(pubKey: config.teamTokenAccountId, isSigner: false),
       AccountMeta.readonly(pubKey: tradePoolId, isSigner: false),
-      AccountMeta.readonly(
+      AccountMeta.writeable(
         pubKey: await utils.getTokenAccountId(
             tokenProgramId: config.tokenProgramId,
             associatedTokenProgramId: config.associatedTokenProgramId,
@@ -129,7 +129,7 @@ Future<Instruction> buyPixel({
         isSigner: false,
       ),
       AccountMeta.readonly(pubKey: pixelOwnerId, isSigner: false),
-      AccountMeta.readonly(
+      AccountMeta.writeable(
         pubKey: await utils.getTokenAccountId(
             tokenProgramId: config.tokenProgramId,
             associatedTokenProgramId: config.associatedTokenProgramId,
@@ -138,7 +138,7 @@ Future<Instruction> buyPixel({
         isSigner: false,
       ),
       AccountMeta.readonly(pubKey: buyerWalletId, isSigner: true),
-      AccountMeta.readonly(
+      AccountMeta.writeable(
         pubKey: await utils.getTokenAccountId(
             tokenProgramId: config.tokenProgramId,
             associatedTokenProgramId: config.associatedTokenProgramId,
