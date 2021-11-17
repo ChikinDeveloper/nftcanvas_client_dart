@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math' as math;
 import 'dart:typed_data';
 
+import 'package:chikin_nft_canvas_client/chikin_nft_canvas_client.dart';
 import 'package:solana/solana.dart' as solana;
 
 
@@ -161,4 +162,43 @@ List<int> packUInt(int data, int byteCount, {Endian endian = Endian.little}) {
     result = result.reversed.toList();
   }
   return result;
+}
+
+class StakedPixelsNftMintInfo {
+  final int version;
+  final String mint;
+
+  StakedPixelsNftMintInfo(this.version, this.mint);
+}
+
+Future<StakedPixelsNftMintInfo> findCheckedStakedPixelsNftMint({
+  required String programId,
+  required String stakedPixelsId,
+  required StakedPixels stakedPixels,
+}) async {
+  String nftMint;
+  String id;
+
+  nftMint = await getStakedPixelsNftMintIdV2(
+      programId: programId, nonce: stakedPixels.nonce);
+  id = await getStakedPixelsId(
+      programId: programId, nftMint: nftMint);
+  if (id == stakedPixelsId) {
+    return StakedPixelsNftMintInfo(2, nftMint);
+  }
+
+  nftMint = await getStakedPixelsNftMintIdV1(
+      programId: programId,
+      x: stakedPixels.x,
+      y: stakedPixels.y,
+      width: stakedPixels.width,
+      height: stakedPixels.height,
+      nonce: stakedPixels.nonce);
+  id = await getStakedPixelsId(
+      programId: programId, nftMint: nftMint);
+  if (id == stakedPixelsId) {
+    return StakedPixelsNftMintInfo(1, nftMint);
+  }
+
+  throw Exception();
 }
