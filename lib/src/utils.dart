@@ -5,7 +5,6 @@ import 'dart:typed_data';
 import 'package:chikin_nft_canvas_client/chikin_nft_canvas_client.dart';
 import 'package:solana/solana.dart' as solana;
 
-
 Future<String> getPixelAccountId({
   required String programId,
   required int index,
@@ -132,7 +131,8 @@ Future<List<String>> listPixelIds({
   final pixels = <String>[];
   for (var j = y; j < y + height; j++) {
     for (var i = x; i < x + width; i++) {
-      pixels.add(await getPixelAccountId(programId: programId, index: pixelPositionToIndex(i, j)));
+      pixels.add(await getPixelAccountId(
+          programId: programId, index: pixelPositionToIndex(i, j)));
     }
   }
   return pixels;
@@ -181,8 +181,7 @@ Future<StakedPixelsNftMintInfo> findCheckedStakedPixelsNftMint({
 
   nftMint = await getStakedPixelsNftMintIdV2(
       programId: programId, nonce: stakedPixels.nonce);
-  id = await getStakedPixelsId(
-      programId: programId, nftMint: nftMint);
+  id = await getStakedPixelsId(programId: programId, nftMint: nftMint);
   if (id == stakedPixelsId) {
     return StakedPixelsNftMintInfo(2, nftMint);
   }
@@ -194,11 +193,38 @@ Future<StakedPixelsNftMintInfo> findCheckedStakedPixelsNftMint({
       width: stakedPixels.width,
       height: stakedPixels.height,
       nonce: stakedPixels.nonce);
-  id = await getStakedPixelsId(
-      programId: programId, nftMint: nftMint);
+  id = await getStakedPixelsId(programId: programId, nftMint: nftMint);
   if (id == stakedPixelsId) {
     return StakedPixelsNftMintInfo(1, nftMint);
   }
 
   throw Exception();
+}
+
+Future<int?> findAvailableStakedPixelsNonce({
+  required solana.RPCClient rpcClient,
+  required String programId,
+  required int x,
+  required int y,
+  required int width,
+  required int height,
+}) async {
+  for (var j = y; j < y + height; j++) {
+    for (var i = x; i < x + width; i++) {
+      for (var mul = 1; mul < 3; mul++) {
+        final index = pixelPositionToIndex(i, j);
+        final nonce = index * mul;
+        final nftMint = await getStakedPixelsNftMintIdV2(
+            programId: programId, nonce: nonce);
+        final stakedPixels =
+            await getStakedPixelsId(programId: programId, nftMint: nftMint);
+        final stakedPixelsState = await getStakedPixels(
+            rpcClient: rpcClient, accountId: stakedPixels);
+        if (stakedPixelsState == null || stakedPixelsState.lockTime < 0) {
+          return nonce;
+        }
+      }
+    }
+  }
+  return null;
 }
