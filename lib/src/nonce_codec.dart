@@ -2,7 +2,7 @@ String encodeNonce(int nonce) {
   final result = StringBuffer();
   while (result.length < 6) {
     final index = nonce % maxIndex;
-    result.write(indexToChar(index));
+    result.write(nonceIndexToChar(index));
     nonce = nonce ~/ maxIndex;
   }
   return result.toString();
@@ -15,7 +15,7 @@ int decodeNonce(String str) {
       List.generate(str.length, (index) => str[str.length - 1 - index])
           .reversed;
   for (final c in chars) {
-    final index = charToIndex(c);
+    final index = nonceCharToIndex(c);
     nonce += index * mul;
     mul *= maxIndex;
   }
@@ -24,7 +24,7 @@ int decodeNonce(String str) {
 
 const int maxIndex = 62;
 
-String indexToChar(int index) {
+String nonceIndexToChar(int index) {
   if (index < 10) {
     return String.fromCharCode(index + 48);
   }
@@ -39,7 +39,7 @@ String indexToChar(int index) {
   throw Exception();
 }
 
-int charToIndex(String char) {
+int nonceCharToIndex(String char) {
   final codeUnits = char.codeUnits;
   if (codeUnits.length != 1) throw Exception();
   final code = codeUnits.first;
