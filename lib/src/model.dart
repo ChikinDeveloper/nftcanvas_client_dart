@@ -307,5 +307,7 @@ class StakedPixels {
 
   int lpTokenAmount() => width * height * lockTime;
 
-  Future<String> nftMint(String programId) => utils.getStakedPixelsNftMintId(programId: programId, x: x, y: y, width: width, height: height, nonce: nonce);
+  Future<String> nftMintV1(String programId) => utils.getStakedPixelsNftMintIdV1(programId: programId, x: x, y: y, width: width, height: height, nonce: nonce);
+
+  Future<String> nftMintV2(String programId) => utils.getStakedPixelsNftMintIdV2(programId: programId, nonce: nonce);
 }

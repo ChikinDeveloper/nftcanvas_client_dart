@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:solana/solana.dart' as solana;
 
+
 Future<String> getPixelAccountId({
   required String programId,
   required int index,
@@ -84,7 +85,7 @@ Future<String> getStakedPixelsId({
   );
 }
 
-Future<String> getStakedPixelsNftMintId({
+Future<String> getStakedPixelsNftMintIdV1({
   required String programId,
   required int x,
   required int y,
@@ -101,6 +102,20 @@ Future<String> getStakedPixelsNftMintId({
       packUInt(height, 4),
       packUInt(nonce, 4),
       utf8.encode('staked_pixels_nft_mint'),
+    ],
+    programId: programId,
+  );
+}
+
+Future<String> getStakedPixelsNftMintIdV2({
+  required String programId,
+  required int nonce,
+}) {
+  return solana.findProgramAddress(
+    seeds: [
+      solana.base58decode(programId),
+      packUInt(nonce, 4),
+      utf8.encode('staked_pixels_nft_mint_v2'),
     ],
     programId: programId,
   );

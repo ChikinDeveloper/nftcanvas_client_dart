@@ -221,13 +221,8 @@ Future<Instruction> stake({
   final programAuthorityId =
       await utils.getProgramAuthorityId(programId: config.programId);
   final stakePoolId = await utils.getStakePoolId(programId: config.programId);
-  final nftMintId = await utils.getStakedPixelsNftMintId(
-      programId: config.programId,
-      x: x,
-      y: y,
-      width: width,
-      height: height,
-      nonce: nonce);
+  final nftMintId = await utils.getStakedPixelsNftMintIdV2(
+      programId: config.programId, nonce: nonce);
   final ownerNftTokenAccountId = await utils.getTokenAccountId(
       tokenProgramId: config.tokenProgramId,
       associatedTokenProgramId: config.associatedTokenProgramId,
@@ -269,14 +264,19 @@ Future<Instruction> unstake({
   required StakedPixels stakedPixelsState,
 }) async {
   assert(nftMint ==
-      await utils.getStakedPixelsNftMintId(
-        programId: config.programId,
-        x: stakedPixelsState.x,
-        y: stakedPixelsState.y,
-        width: stakedPixelsState.width,
-        height: stakedPixelsState.height,
-        nonce: stakedPixelsState.nonce,
-      ));
+          await utils.getStakedPixelsNftMintIdV1(
+            programId: config.programId,
+            x: stakedPixelsState.x,
+            y: stakedPixelsState.y,
+            width: stakedPixelsState.width,
+            height: stakedPixelsState.height,
+            nonce: stakedPixelsState.nonce,
+          ) ||
+      nftMint ==
+          await utils.getStakedPixelsNftMintIdV2(
+            programId: config.programId,
+            nonce: stakedPixelsState.nonce,
+          ));
 
   final stakePoolId = await utils.getStakePoolId(programId: config.programId);
   final stakePoolTokenAccountId = await utils.getTokenAccountId(
