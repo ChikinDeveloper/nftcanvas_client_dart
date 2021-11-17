@@ -5,15 +5,13 @@ String encodeNonce(int nonce) {
     result.write(nonceIndexToChar(index));
     nonce = nonce ~/ maxIndex;
   }
-  return result.toString();
+  return result.toString().split('').reversed.join();
 }
 
 int decodeNonce(String str) {
   var nonce = 0;
   var mul = 1;
-  final chars =
-      List.generate(str.length, (index) => str[str.length - 1 - index])
-          .reversed;
+  final chars = List.generate(str.length, (index) => str[index]).reversed;
   for (final c in chars) {
     final index = nonceCharToIndex(c);
     nonce += index * mul;
@@ -47,10 +45,10 @@ int nonceCharToIndex(String char) {
     return code - 48;
   }
   if (code >= 97 && code < 123) {
-    return code - 97;
+    return code - 97 + 10;
   }
   if (code >= 65 && code < 91) {
-    return code - 65;
+    return code - 65 + 36;
   }
   throw Exception();
 }
