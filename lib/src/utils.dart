@@ -109,19 +109,21 @@ Future<String> getStakedPixelsNftMintIdV1({
 
 Future<String> getStakedPixelsNftMintIdV2({
   required String programId,
-  required int nonce,
+  required int x,
+  required int y,
 }) {
   return solana.findProgramAddress(
     seeds: [
       solana.base58decode(programId),
-      packUInt(nonce, 4),
+      packUInt(x, 4),
+      packUInt(y, 4),
       utf8.encode('staked_pixels_nft_mint_v2'),
     ],
     programId: programId,
   );
 }
 
-Future<List<String>> listPixelIds({
+Future<List<String>> getSelectionPixelsV1({
   required String programId,
   required int x,
   required int y,
@@ -134,6 +136,24 @@ Future<List<String>> listPixelIds({
       pixels.add(await getPixelAccountId(
           programId: programId, index: pixelPositionToIndex(i, j)));
     }
+  }
+  return pixels;
+}
+
+Future<List<String>> getSelectionPixelsV2({
+  required String programId,
+  required int x,
+  required int y,
+  required int width,
+  required int offset,
+  required int count,
+}) async {
+  final pixels = <String>[];
+  for (var index=offset; index<offset+count; index++) {
+    final i = index % width;
+    final j = index ~/ width;
+    pixels.add(await getPixelAccountId(
+        programId: programId, index: pixelPositionToIndex(i + x, j + y)));
   }
   return pixels;
 }
@@ -155,11 +175,24 @@ int unpackUInt(List<int> data, {Endian endian = Endian.little}) {
 }
 
 List<int> packUInt(int data, int byteCount, {Endian endian = Endian.little}) {
+  if (data < 0) throw Exception();
   var result = List.generate(byteCount, (index) {
     return (data ~/ math.pow(2, 8 * index)) % 256;
   });
   if (endian == Endian.big) {
     result = result.reversed.toList();
+  }
+  return result;
+}
+
+List<int> packInt(int data, int byteCount, {Endian endian = Endian.little}) {
+  final result = packUInt(data.abs(), byteCount, endian: endian);
+  if (data < 0) {
+    if (endian == Endian.little) {
+      result[result.length - 1] = 1;
+    } else {
+      result[0] = 1;
+    }
   }
   return result;
 }
@@ -176,55 +209,10 @@ Future<StakedPixelsNftMintInfo> findCheckedStakedPixelsNftMint({
   required String stakedPixelsId,
   required StakedPixels stakedPixels,
 }) async {
-  String nftMint;
-  String id;
-
-  nftMint = await getStakedPixelsNftMintIdV2(
-      programId: programId, nonce: stakedPixels.nonce);
-  id = await getStakedPixelsId(programId: programId, nftMint: nftMint);
-  if (id == stakedPixelsId) {
-    return StakedPixelsNftMintInfo(2, nftMint);
+  final nftMint = await stakedPixels.nftMint(programId);
+  final resStakedPixelsId = await getStakedPixelsId(programId: programId, nftMint: nftMint);
+  if (stakedPixelsId != resStakedPixelsId) {
+    throw Exception();
   }
-
-  nftMint = await getStakedPixelsNftMintIdV1(
-      programId: programId,
-      x: stakedPixels.x,
-      y: stakedPixels.y,
-      width: stakedPixels.width,
-      height: stakedPixels.height,
-      nonce: stakedPixels.nonce);
-  id = await getStakedPixelsId(programId: programId, nftMint: nftMint);
-  if (id == stakedPixelsId) {
-    return StakedPixelsNftMintInfo(1, nftMint);
-  }
-
-  throw Exception();
-}
-
-Future<int?> findAvailableStakedPixelsNonce({
-  required solana.RPCClient rpcClient,
-  required String programId,
-  required int x,
-  required int y,
-  required int width,
-  required int height,
-}) async {
-  for (var j = y; j < y + height; j++) {
-    for (var i = x; i < x + width; i++) {
-      for (var mul = 1; mul < 3; mul++) {
-        final index = pixelPositionToIndex(i, j);
-        final nonce = index * mul;
-        final nftMint = await getStakedPixelsNftMintIdV2(
-            programId: programId, nonce: nonce);
-        final stakedPixels =
-            await getStakedPixelsId(programId: programId, nftMint: nftMint);
-        final stakedPixelsState = await getStakedPixels(
-            rpcClient: rpcClient, accountId: stakedPixels);
-        if (stakedPixelsState == null || stakedPixelsState.lockTime < 0) {
-          return nonce;
-        }
-      }
-    }
-  }
-  return null;
+  return StakedPixelsNftMintInfo(stakedPixels.version(), nftMint);
 }

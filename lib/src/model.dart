@@ -3,7 +3,7 @@ import 'utils.dart' as utils;
 // Instruction
 
 abstract class NftCanvasInstruction {
-  static const packedSize = 21;
+  static const packedSize = 17;
 
   NftCanvasInstruction._();
 
@@ -146,15 +146,13 @@ class NftCanvasInstructionStake extends NftCanvasInstruction {
   final int x;
   final int y;
   final int width;
-  final int height;
-  final int nonce;
+  final int pixelCount;
 
   NftCanvasInstructionStake({
     required this.x,
     required this.y,
     required this.width,
-    required this.height,
-    required this.nonce,
+    required this.pixelCount,
   }) : super._();
 
   @override
@@ -164,8 +162,7 @@ class NftCanvasInstructionStake extends NftCanvasInstruction {
       ...utils.packUInt(x, 4),
       ...utils.packUInt(y, 4),
       ...utils.packUInt(width, 4),
-      ...utils.packUInt(height, 4),
-      ...utils.packUInt(nonce, 4),
+      ...utils.packUInt(pixelCount, 4),
     ];
     return NftCanvasInstruction.formatPacked(result);
   }
@@ -187,6 +184,23 @@ class NftCanvasInstructionHarvest extends NftCanvasInstruction {
   @override
   List<int> pack() {
     final result = [8];
+    return NftCanvasInstruction.formatPacked(result);
+  }
+}
+
+class NftCanvasInstructionUpdateStakingPixels extends NftCanvasInstruction {
+  final int pixelCount;
+
+  NftCanvasInstructionUpdateStakingPixels({
+    required this.pixelCount,
+  }) : super._();
+
+  @override
+  List<int> pack() {
+    final result = [
+      9,
+      ...utils.packUInt(pixelCount, 4), // TODO pixelCount is not UInt
+    ];
     return NftCanvasInstruction.formatPacked(result);
   }
 }
@@ -272,7 +286,13 @@ class StakePool {
   }
 }
 
-class StakedPixels {
+abstract class StakedPixels {
+  int version();
+  Future<String> nftMint(String programId);
+  Future<List<String>> pixels(String programId);
+}
+
+class StakedPixelsV1 implements StakedPixels {
   static const packedSize = 28;
 
   final int x;
@@ -282,7 +302,7 @@ class StakedPixels {
   final int nonce;
   final int lockTime;
 
-  StakedPixels({
+  StakedPixelsV1({
     required this.x,
     required this.y,
     required this.width,
@@ -291,9 +311,9 @@ class StakedPixels {
     required this.lockTime,
   });
 
-  static StakedPixels unpack(List<int> data) {
+  static StakedPixelsV1 unpack(List<int> data) {
     assert(data.length == packedSize, '${data.length} != $packedSize');
-    return StakedPixels(
+    return StakedPixelsV1(
       x: utils.unpackUInt(data.sublist(0, 4)),
       y: utils.unpackUInt(data.sublist(4, 8)),
       width: utils.unpackUInt(data.sublist(8, 12)),
@@ -307,7 +327,56 @@ class StakedPixels {
 
   int lpTokenAmount() => width * height * lockTime;
 
-  Future<String> nftMintV1(String programId) => utils.getStakedPixelsNftMintIdV1(programId: programId, x: x, y: y, width: width, height: height, nonce: nonce);
+  @override
+  int version() => 1;
 
-  Future<String> nftMintV2(String programId) => utils.getStakedPixelsNftMintIdV2(programId: programId, nonce: nonce);
+  @override
+  Future<String> nftMint(String programId) => utils.getStakedPixelsNftMintIdV1(programId: programId, x: x, y: y, width: width, height: height, nonce: nonce);
+
+  @override
+  Future<List<String>> pixels(String programId) async {
+    return utils.getSelectionPixelsV1(programId: programId, x: x, y: y, width: width, height: height);
+  }
+}
+
+class StakedPixelsV2 implements StakedPixels {
+  static const packedSize = 24;
+
+  final int x;
+  final int y;
+  final int width;
+  final int pixelCount;
+  final int lockTime;
+
+  StakedPixelsV2({
+    required this.x,
+    required this.y,
+    required this.width,
+    required this.pixelCount,
+    required this.lockTime,
+  });
+
+  static StakedPixelsV2 unpack(List<int> data) {
+    assert(data.length == packedSize, '${data.length} != $packedSize');
+    return StakedPixelsV2(
+      x: utils.unpackUInt(data.sublist(0, 4)),
+      y: utils.unpackUInt(data.sublist(4, 8)),
+      width: utils.unpackUInt(data.sublist(8, 12)),
+      pixelCount: utils.unpackUInt(data.sublist(12, 16)),
+      lockTime: utils.unpackUInt(data.sublist(16, 24)),
+    );
+  }
+
+  int lpTokenAmount() => pixelCount * lockTime;
+
+  @override
+  int version() => 2;
+
+  @override
+  Future<String> nftMint(String programId) => utils.getStakedPixelsNftMintIdV2(programId: programId, x: x, y: y);
+
+  @override
+  Future<List<String>> pixels(String programId) async {
+    return utils.getSelectionPixelsV2(programId: programId, x: x, y: y, width: width, offset: 0, count: pixelCount);
+  }
 }

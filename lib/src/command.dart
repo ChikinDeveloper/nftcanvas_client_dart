@@ -215,14 +215,13 @@ Future<Instruction> stake({
   required int x,
   required int y,
   required int width,
-  required int height,
-  required int nonce,
+  required int pixelCount,
 }) async {
   final programAuthorityId =
       await utils.getProgramAuthorityId(programId: config.programId);
   final stakePoolId = await utils.getStakePoolId(programId: config.programId);
   final nftMintId = await utils.getStakedPixelsNftMintIdV2(
-      programId: config.programId, nonce: nonce);
+      programId: config.programId, x: x, y: y);
   final ownerNftTokenAccountId = await utils.getTokenAccountId(
       tokenProgramId: config.tokenProgramId,
       associatedTokenProgramId: config.associatedTokenProgramId,
@@ -230,8 +229,13 @@ Future<Instruction> stake({
       ownerId: owner);
   final stakedPixelsId = await utils.getStakedPixelsId(
       programId: config.programId, nftMint: nftMintId);
-  final pixelIdList = await utils.listPixelIds(
-      programId: config.programId, x: x, y: y, width: width, height: height);
+  final pixelIdList = await utils.getSelectionPixelsV2(
+      programId: config.programId,
+      x: x,
+      y: y,
+      width: width,
+      offset: 0,
+      count: pixelCount);
   return Instruction(
     programId: config.programId,
     accounts: [
@@ -252,7 +256,7 @@ Future<Instruction> stake({
           .map((e) => AccountMeta.writeable(pubKey: e, isSigner: false)),
     ],
     data: NftCanvasInstructionStake(
-            x: x, y: y, width: width, height: height, nonce: nonce)
+            x: x, y: y, width: width, pixelCount: pixelCount)
         .pack(),
   );
 }
@@ -263,20 +267,7 @@ Future<Instruction> unstake({
   required String nftMint,
   required StakedPixels stakedPixelsState,
 }) async {
-  assert(nftMint ==
-          await utils.getStakedPixelsNftMintIdV1(
-            programId: config.programId,
-            x: stakedPixelsState.x,
-            y: stakedPixelsState.y,
-            width: stakedPixelsState.width,
-            height: stakedPixelsState.height,
-            nonce: stakedPixelsState.nonce,
-          ) ||
-      nftMint ==
-          await utils.getStakedPixelsNftMintIdV2(
-            programId: config.programId,
-            nonce: stakedPixelsState.nonce,
-          ));
+  assert(nftMint == await stakedPixelsState.nftMint(config.programId));
 
   final stakePoolId = await utils.getStakePoolId(programId: config.programId);
   final stakePoolTokenAccountId = await utils.getTokenAccountId(
@@ -296,13 +287,7 @@ Future<Instruction> unstake({
       ownerId: owner);
   final stakedPixelsId = await utils.getStakedPixelsId(
       programId: config.programId, nftMint: nftMint);
-  final pixelIdList = await utils.listPixelIds(
-    programId: config.programId,
-    x: stakedPixelsState.x,
-    y: stakedPixelsState.y,
-    width: stakedPixelsState.width,
-    height: stakedPixelsState.height,
-  );
+  final pixelIdList = await stakedPixelsState.pixels(config.programId);
   return Instruction(
     programId: config.programId,
     accounts: [
@@ -359,6 +344,66 @@ Future<Instruction> harvest({
       AccountMeta.writeable(pubKey: ownerRewardTokenAccountId, isSigner: false),
       AccountMeta.writeable(pubKey: nftMint, isSigner: false),
       AccountMeta.writeable(pubKey: stakedPixelsId, isSigner: false),
+    ],
+    data: NftCanvasInstructionHarvest().pack(),
+  );
+}
+
+Future<Instruction> updateStakingPixels({
+  required Config config,
+  required String owner,
+  required String nftMint,
+  required StakedPixelsV2 stakedPixelsState,
+  required int pixelCount,
+}) async {
+  final stakePoolId = await utils.getStakePoolId(programId: config.programId);
+  final stakePoolTokenAccountId = await utils.getTokenAccountId(
+      tokenProgramId: config.tokenProgramId,
+      associatedTokenProgramId: config.associatedTokenProgramId,
+      tokenMintId: config.ckcTokenMintId,
+      ownerId: stakePoolId);
+  final ownerNftTokenAccountId = await utils.getTokenAccountId(
+      tokenProgramId: config.tokenProgramId,
+      associatedTokenProgramId: config.associatedTokenProgramId,
+      tokenMintId: nftMint,
+      ownerId: owner);
+  final ownerRewardTokenAccountId = await utils.getTokenAccountId(
+      tokenProgramId: config.tokenProgramId,
+      associatedTokenProgramId: config.associatedTokenProgramId,
+      tokenMintId: config.ckcTokenMintId,
+      ownerId: owner);
+  final stakedPixelsId = await utils.getStakedPixelsId(
+      programId: config.programId, nftMint: nftMint);
+  final pixelIdList = (pixelCount > 0)
+      ? await utils.getSelectionPixelsV2(
+          programId: config.programId,
+          x: stakedPixelsState.x,
+          y: stakedPixelsState.y,
+          width: stakedPixelsState.width,
+          offset: stakedPixelsState.pixelCount,
+          count: pixelCount.abs())
+      : await utils.getSelectionPixelsV2(
+          programId: config.programId,
+          x: stakedPixelsState.x,
+          y: stakedPixelsState.y,
+          width: stakedPixelsState.width,
+          offset: stakedPixelsState.pixelCount - pixelCount.abs(),
+          count: pixelCount.abs());
+  return Instruction(
+    programId: config.programId,
+    accounts: [
+      AccountMeta.readonly(pubKey: config.programId, isSigner: false),
+      AccountMeta.readonly(pubKey: config.tokenProgramId, isSigner: false),
+      AccountMeta.readonly(pubKey: config.clockSysvarId, isSigner: false),
+      AccountMeta.writeable(pubKey: stakePoolId, isSigner: false),
+      AccountMeta.writeable(pubKey: stakePoolTokenAccountId, isSigner: false),
+      AccountMeta.writeable(pubKey: owner, isSigner: true),
+      AccountMeta.writeable(pubKey: ownerNftTokenAccountId, isSigner: false),
+      AccountMeta.writeable(pubKey: ownerRewardTokenAccountId, isSigner: false),
+      AccountMeta.writeable(pubKey: nftMint, isSigner: false),
+      AccountMeta.writeable(pubKey: stakedPixelsId, isSigner: false),
+      ...pixelIdList
+          .map((e) => AccountMeta.writeable(pubKey: e, isSigner: false)),
     ],
     data: NftCanvasInstructionHarvest().pack(),
   );
