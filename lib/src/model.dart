@@ -306,6 +306,7 @@ abstract class StakedPixels {
   int getX();
   int getY();
   int getWidth();
+  int getHeight();
   int getLockTime();
   int getPixelCount();
 
@@ -371,6 +372,9 @@ class StakedPixelsV1 extends StakedPixels {
   int getWidth() => width;
 
   @override
+  int getHeight() => height;
+
+  @override
   int getLockTime() => lockTime;
 
   @override
@@ -426,6 +430,9 @@ class StakedPixelsV2 extends StakedPixels {
 
   @override
   int getWidth() => width;
+
+  @override
+  int getHeight() => 1 + (pixelCount ~/ width);
 
   @override
   int getLockTime() => lockTime;
