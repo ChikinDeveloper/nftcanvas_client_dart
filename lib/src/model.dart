@@ -302,6 +302,13 @@ abstract class StakedPixels {
   }
 
   int version();
+
+  int getX();
+  int getY();
+  int getWidth();
+  int getLockTime();
+  int getPixelCount();
+
   Future<String> nftMint(String programId);
   List<Point<int>> pixelPositions();
 
@@ -349,12 +356,25 @@ class StakedPixelsV1 extends StakedPixels {
     );
   }
 
-  int pixelCount() => width * height;
-
   int lpTokenAmount() => width * height * lockTime;
 
   @override
   int version() => 1;
+
+  @override
+  int getX() => x;
+
+  @override
+  int getY() => y;
+
+  @override
+  int getWidth() => width;
+
+  @override
+  int getLockTime() => lockTime;
+
+  @override
+  int getPixelCount() => width * height;
 
   @override
   Future<String> nftMint(String programId) => utils.getStakedPixelsNftMintIdV1(programId: programId, x: x, y: y, width: width, height: height, nonce: nonce);
@@ -397,6 +417,21 @@ class StakedPixelsV2 extends StakedPixels {
 
   @override
   int version() => 2;
+
+  @override
+  int getX() => x;
+
+  @override
+  int getY() => y;
+
+  @override
+  int getWidth() => width;
+
+  @override
+  int getLockTime() => lockTime;
+
+  @override
+  int getPixelCount() => pixelCount;
 
   @override
   Future<String> nftMint(String programId) => utils.getStakedPixelsNftMintIdV2(programId: programId, x: x, y: y);
