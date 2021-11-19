@@ -204,7 +204,14 @@ Future<List<String>> getSelectionPixelsV2({
 
 int pixelPositionToIndex(int i, int j) => i + 1000 * j;
 
-int unpackUInt(List<int> data, {Endian endian = Endian.little}) {
+Point<int> pixelIndexToPosition(int index) =>
+    Point(index % 1000, index ~/ 1000);
+
+int unpackUInt(
+  List<int> data, {
+  Endian endian = Endian.little,
+  int maxFragmentValue = 256,
+}) {
   var slice = List.of(data);
   if (endian == Endian.big) {
     slice = slice.reversed.toList();
@@ -212,16 +219,21 @@ int unpackUInt(List<int> data, {Endian endian = Endian.little}) {
   var result = 0;
   var pow = 0;
   for (final e in slice) {
-    result += e * math.pow(2, pow).toInt();
-    pow += 8;
+    result += e * math.pow(maxFragmentValue, pow).toInt();
+    pow += 1;
   }
   return result;
 }
 
-List<int> packUInt(int data, int byteCount, {Endian endian = Endian.little}) {
+List<int> packUInt(
+  int data,
+  int byteCount, {
+  Endian endian = Endian.little,
+  int maxFragmentValue = 256,
+}) {
   if (data < 0) throw Exception();
   var result = List.generate(byteCount, (index) {
-    return (data ~/ math.pow(2, 8 * index)) % 256;
+    return (data ~/ math.pow(maxFragmentValue, index)) % maxFragmentValue;
   });
   if (endian == Endian.big) {
     result = result.reversed.toList();
@@ -229,8 +241,14 @@ List<int> packUInt(int data, int byteCount, {Endian endian = Endian.little}) {
   return result;
 }
 
-List<int> packInt(int data, int byteCount, {Endian endian = Endian.little}) {
-  final result = packUInt(data.abs(), byteCount, endian: endian);
+List<int> packInt(
+  int data,
+  int byteCount, {
+  Endian endian = Endian.little,
+  int maxFragmentValue = 256,
+}) {
+  final result = packUInt(data.abs(), byteCount,
+      endian: endian, maxFragmentValue: maxFragmentValue);
   if (data < 0) {
     if (endian == Endian.little) {
       result[result.length - 1] = 1;
@@ -260,4 +278,24 @@ Future<StakedPixelsNftMintInfo> findCheckedStakedPixelsNftMint({
     throw Exception();
   }
   return StakedPixelsNftMintInfo(stakedPixels.version(), nftMint);
+}
+
+const base62Alphabet =
+    '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+
+String packStakedPixelsNftMintCode(int x, int y) {
+  final index = pixelPositionToIndex(x, y);
+  final indexBytes = packUInt(index, 4, maxFragmentValue: 62, endian: Endian.big);
+  final result = StringBuffer();
+  for (final byte in indexBytes) {
+    result.write(base62Alphabet[byte]);
+  }
+  return result.toString();
+}
+
+Point<int> unpackStakedPixelsNftMintCode(String code) {
+  final indexBytes =
+      code.split('').map((e) => base62Alphabet.indexOf(e)).toList();
+  final index = unpackUInt(indexBytes, maxFragmentValue: 62, endian: Endian.big);
+  return pixelIndexToPosition(index);
 }
