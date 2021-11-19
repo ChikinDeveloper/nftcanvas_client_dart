@@ -5,4 +5,3 @@ export 'src/command.dart';
 export 'src/config.dart';
 export 'src/model.dart';
 export 'src/utils.dart';
-export 'src/nonce_codec.dart';

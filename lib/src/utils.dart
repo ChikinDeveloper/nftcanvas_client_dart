@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:math' as math;
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:chikin_nft_canvas_client/chikin_nft_canvas_client.dart';
@@ -123,6 +124,35 @@ Future<String> getStakedPixelsNftMintIdV2({
   );
 }
 
+Future<String> getNftMetadataAccountId({
+  required String metaplexTokenMetadataProgramId,
+  required String nftMint,
+}) {
+  return solana.findProgramAddress(
+    seeds: [
+      utf8.encode('metadata'),
+      utf8.encode(metaplexTokenMetadataProgramId),
+      utf8.encode(nftMint),
+    ],
+    programId: metaplexTokenMetadataProgramId,
+  );
+}
+
+List<Point<int>> getSelectionPixelsV1Positions({
+  required int x,
+  required int y,
+  required int width,
+  required int height,
+}) {
+  final pixels = <Point<int>>[];
+  for (var j = y; j < y + height; j++) {
+    for (var i = x; i < x + width; i++) {
+      pixels.add(Point(i, j));
+    }
+  }
+  return pixels;
+}
+
 Future<List<String>> getSelectionPixelsV1({
   required String programId,
   required int x,
@@ -130,12 +160,27 @@ Future<List<String>> getSelectionPixelsV1({
   required int width,
   required int height,
 }) async {
-  final pixels = <String>[];
-  for (var j = y; j < y + height; j++) {
-    for (var i = x; i < x + width; i++) {
-      pixels.add(await getPixelAccountId(
-          programId: programId, index: pixelPositionToIndex(i, j)));
-    }
+  final result = <String>[];
+  for (final position in getSelectionPixelsV1Positions(
+      x: x, y: y, width: width, height: height)) {
+    final index = pixelPositionToIndex(position.x, position.y);
+    result.add(await getPixelAccountId(programId: programId, index: index));
+  }
+  return result;
+}
+
+List<Point<int>> getSelectionPixelsV2Positions({
+  required int x,
+  required int y,
+  required int width,
+  required int offset,
+  required int count,
+}) {
+  final pixels = <Point<int>>[];
+  for (var index = offset; index < offset + count; index++) {
+    final i = index % width;
+    final j = index ~/ width;
+    pixels.add(Point(i + x, j + y));
   }
   return pixels;
 }
@@ -148,14 +193,13 @@ Future<List<String>> getSelectionPixelsV2({
   required int offset,
   required int count,
 }) async {
-  final pixels = <String>[];
-  for (var index=offset; index<offset+count; index++) {
-    final i = index % width;
-    final j = index ~/ width;
-    pixels.add(await getPixelAccountId(
-        programId: programId, index: pixelPositionToIndex(i + x, j + y)));
+  final result = <String>[];
+  for (final position in getSelectionPixelsV2Positions(
+      x: x, y: y, width: width, offset: offset, count: count)) {
+    final index = pixelPositionToIndex(position.x, position.y);
+    result.add(await getPixelAccountId(programId: programId, index: index));
   }
-  return pixels;
+  return result;
 }
 
 int pixelPositionToIndex(int i, int j) => i + 1000 * j;
@@ -210,7 +254,8 @@ Future<StakedPixelsNftMintInfo> findCheckedStakedPixelsNftMint({
   required StakedPixels stakedPixels,
 }) async {
   final nftMint = await stakedPixels.nftMint(programId);
-  final resStakedPixelsId = await getStakedPixelsId(programId: programId, nftMint: nftMint);
+  final resStakedPixelsId =
+      await getStakedPixelsId(programId: programId, nftMint: nftMint);
   if (stakedPixelsId != resStakedPixelsId) {
     throw Exception();
   }

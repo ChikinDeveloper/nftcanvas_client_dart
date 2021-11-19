@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'utils.dart' as utils;
 
 // Instruction
@@ -199,7 +201,7 @@ class NftCanvasInstructionUpdateStakingPixels extends NftCanvasInstruction {
   List<int> pack() {
     final result = [
       9,
-      ...utils.packUInt(pixelCount, 4), // TODO pixelCount is not UInt
+      ...utils.packInt(pixelCount, 4),
     ];
     return NftCanvasInstruction.formatPacked(result);
   }
@@ -287,12 +289,36 @@ class StakePool {
 }
 
 abstract class StakedPixels {
+  StakedPixels();
+
+  factory StakedPixels.unpack(List<int> data) {
+    if (data.length == StakedPixelsV1.packedSize) {
+      return StakedPixelsV1.unpack(data);
+    } else if (data.length == StakedPixelsV2.packedSize) {
+      return StakedPixelsV2.unpack(data);
+    } else {
+      throw Exception();
+    }
+  }
+
   int version();
   Future<String> nftMint(String programId);
-  Future<List<String>> pixels(String programId);
+  List<Point<int>> pixelPositions();
+
+  List<int> pixelIndices() {
+    return pixelPositions().map((e) => utils.pixelPositionToIndex(e.x, e.y)).toList();
+  }
+
+  Future<List<String>> pixels(String programId) async {
+    final result = <String>[];
+    for (final index in pixelIndices()) {
+      result.add(await utils.getPixelAccountId(programId: programId, index: index));
+    }
+    return result;
+  }
 }
 
-class StakedPixelsV1 implements StakedPixels {
+class StakedPixelsV1 extends StakedPixels {
   static const packedSize = 28;
 
   final int x;
@@ -334,12 +360,12 @@ class StakedPixelsV1 implements StakedPixels {
   Future<String> nftMint(String programId) => utils.getStakedPixelsNftMintIdV1(programId: programId, x: x, y: y, width: width, height: height, nonce: nonce);
 
   @override
-  Future<List<String>> pixels(String programId) async {
-    return utils.getSelectionPixelsV1(programId: programId, x: x, y: y, width: width, height: height);
+  List<Point<int>> pixelPositions() {
+    return utils.getSelectionPixelsV1Positions(x: x, y: y, width: width, height: height);
   }
 }
 
-class StakedPixelsV2 implements StakedPixels {
+class StakedPixelsV2 extends StakedPixels {
   static const packedSize = 24;
 
   final int x;
@@ -376,7 +402,7 @@ class StakedPixelsV2 implements StakedPixels {
   Future<String> nftMint(String programId) => utils.getStakedPixelsNftMintIdV2(programId: programId, x: x, y: y);
 
   @override
-  Future<List<String>> pixels(String programId) async {
-    return utils.getSelectionPixelsV2(programId: programId, x: x, y: y, width: width, offset: 0, count: pixelCount);
+  List<Point<int>> pixelPositions() {
+    return utils.getSelectionPixelsV2Positions(x: x, y: y, width: width, offset: 0, count: pixelCount);
   }
 }

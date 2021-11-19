@@ -229,6 +229,9 @@ Future<Instruction> stake({
       ownerId: owner);
   final stakedPixelsId = await utils.getStakedPixelsId(
       programId: config.programId, nftMint: nftMintId);
+  final nftMetadataAccountId = await utils.getNftMetadataAccountId(
+      metaplexTokenMetadataProgramId: config.metaplexTokenMetadataProgramId,
+      nftMint: nftMintId);
   final pixelIdList = await utils.getSelectionPixelsV2(
       programId: config.programId,
       x: x,
@@ -244,6 +247,8 @@ Future<Instruction> stake({
       AccountMeta.readonly(pubKey: config.tokenProgramId, isSigner: false),
       AccountMeta.readonly(
           pubKey: config.associatedTokenProgramId, isSigner: false),
+      AccountMeta.readonly(
+          pubKey: config.metaplexTokenMetadataProgramId, isSigner: false),
       AccountMeta.readonly(pubKey: config.rentSysvarId, isSigner: false),
       AccountMeta.readonly(pubKey: config.clockSysvarId, isSigner: false),
       AccountMeta.readonly(pubKey: programAuthorityId, isSigner: false),
@@ -251,6 +256,7 @@ Future<Instruction> stake({
       AccountMeta.writeable(pubKey: owner, isSigner: true),
       AccountMeta.writeable(pubKey: ownerNftTokenAccountId, isSigner: false),
       AccountMeta.writeable(pubKey: nftMintId, isSigner: false),
+      AccountMeta.writeable(pubKey: nftMetadataAccountId, isSigner: false),
       AccountMeta.writeable(pubKey: stakedPixelsId, isSigner: false),
       ...pixelIdList
           .map((e) => AccountMeta.writeable(pubKey: e, isSigner: false)),

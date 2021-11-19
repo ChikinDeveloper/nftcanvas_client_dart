@@ -7,6 +7,8 @@ class Config {
     this.tokenProgramId = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
     this.associatedTokenProgramId =
         'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL',
+    this.metaplexTokenMetadataProgramId =
+        'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s',
     this.ckcTokenMintId = '8s9FCz99Wcr3dHpiauFRi6bLXzshXfcGTfgQE7UEopVx',
     this.teamWalletId = 'DkmfiWSC4mnPvfMXZY2CkT4skvFkGr4u5DwRX2htRvJ2',
     this.teamTokenAccountId = 'Esi6Z7reZt9NjZ2TeTFRXcTez1XA7764dE9bZoKCdjTb',
@@ -19,6 +21,7 @@ class Config {
   final String systemProgramId;
   final String tokenProgramId;
   final String associatedTokenProgramId;
+  final String metaplexTokenMetadataProgramId;
   final String ckcTokenMintId;
   final String teamWalletId;
   final String teamTokenAccountId;
