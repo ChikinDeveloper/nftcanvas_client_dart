@@ -38,6 +38,20 @@ Future<List<Pixel?>> getPixelsByIndex({
   }).toList();
 }
 
+Future<StakedPixels?> getStakedPixels(
+    {required RPCClient rpcClient, required String accountId}) async {
+  final account = await rpcClient.getAccountInfo(accountId);
+  if (account == null) return null;
+  final dataBytes = base64.decode(account.data[0]);
+  if (dataBytes.length == StakedPixelsV1.packedSize) {
+    return StakedPixelsV1.unpack(dataBytes);
+  } else if (dataBytes.length == StakedPixelsV2.packedSize) {
+    return StakedPixelsV2.unpack(dataBytes);
+  } else {
+    throw Exception();
+  }
+}
+
 Future<StakedPixelsV1?> getStakedPixelsV1(
     {required RPCClient rpcClient, required String accountId}) async {
   final account = await rpcClient.getAccountInfo(accountId);
