@@ -304,23 +304,32 @@ abstract class StakedPixels {
   int version();
 
   int getX();
+
   int getY();
+
   int getWidth();
+
   int getHeight();
+
   int getLockTime();
+
   int getPixelCount();
 
   Future<String> nftMint(String programId);
+
   List<Point<int>> pixelPositions();
 
   List<int> pixelIndices() {
-    return pixelPositions().map((e) => utils.pixelPositionToIndex(e.x, e.y)).toList();
+    return pixelPositions()
+        .map((e) => utils.pixelPositionToIndex(e.x, e.y))
+        .toList();
   }
 
   Future<List<String>> pixels(String programId) async {
     final result = <String>[];
     for (final index in pixelIndices()) {
-      result.add(await utils.getPixelAccountId(programId: programId, index: index));
+      result.add(
+          await utils.getPixelAccountId(programId: programId, index: index));
     }
     return result;
   }
@@ -381,11 +390,18 @@ class StakedPixelsV1 extends StakedPixels {
   int getPixelCount() => width * height;
 
   @override
-  Future<String> nftMint(String programId) => utils.getStakedPixelsNftMintIdV1(programId: programId, x: x, y: y, width: width, height: height, nonce: nonce);
+  Future<String> nftMint(String programId) => utils.getStakedPixelsNftMintIdV1(
+      programId: programId,
+      x: x,
+      y: y,
+      width: width,
+      height: height,
+      nonce: nonce);
 
   @override
   List<Point<int>> pixelPositions() {
-    return utils.getSelectionPixelsV1Positions(x: x, y: y, width: width, height: height);
+    return utils.getSelectionPixelsV1Positions(
+        x: x, y: y, width: width, height: height);
   }
 }
 
@@ -405,6 +421,16 @@ class StakedPixelsV2 extends StakedPixels {
     required this.pixelCount,
     required this.lockTime,
   });
+
+  StakedPixelsV2 copyWith({
+    int? pixelCount,
+  }) =>
+      StakedPixelsV2(
+          x: x,
+          y: y,
+          width: width,
+          pixelCount: pixelCount ?? this.pixelCount,
+          lockTime: lockTime);
 
   static StakedPixelsV2 unpack(List<int> data) {
     assert(data.length == packedSize, '${data.length} != $packedSize');
@@ -441,10 +467,12 @@ class StakedPixelsV2 extends StakedPixels {
   int getPixelCount() => pixelCount;
 
   @override
-  Future<String> nftMint(String programId) => utils.getStakedPixelsNftMintIdV2(programId: programId, x: x, y: y);
+  Future<String> nftMint(String programId) =>
+      utils.getStakedPixelsNftMintIdV2(programId: programId, x: x, y: y);
 
   @override
   List<Point<int>> pixelPositions() {
-    return utils.getSelectionPixelsV2Positions(x: x, y: y, width: width, offset: 0, count: pixelCount);
+    return utils.getSelectionPixelsV2Positions(
+        x: x, y: y, width: width, offset: 0, count: pixelCount);
   }
 }
