@@ -397,9 +397,8 @@ Future<Instruction> updateStakingPixels({
 Future<Instruction> updateStakedPixelsNftMetadata({
   required Config config,
   required String owner,
-  required StakedPixelsV2 stakedPixelsState,
+  required String nftMint,
 }) async {
-  final nftMint = await stakedPixelsState.nftMint(config.programId);
   final programAuthority = await utils.getProgramAuthorityId(programId: config.programId);
   final nftMetadata = await utils.getNftMetadataAccountId(metaplexTokenMetadataProgramId: config.metaplexTokenMetadataProgramId, nftMint: nftMint);
   final ownerNftTokenAccountId = await utils.getTokenAccountId(
