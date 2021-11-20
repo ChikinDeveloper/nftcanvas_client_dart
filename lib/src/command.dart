@@ -213,9 +213,6 @@ Future<Instruction> stake({
       ownerId: owner);
   final stakedPixelsId = await utils.getStakedPixelsId(
       programId: config.programId, nftMint: nftMintId);
-  final nftMetadataAccountId = await utils.getNftMetadataAccountId(
-      metaplexTokenMetadataProgramId: config.metaplexTokenMetadataProgramId,
-      nftMint: nftMintId);
   final pixelIdList = await utils.getSelectionPixelsV2(
       programId: config.programId,
       x: x,
