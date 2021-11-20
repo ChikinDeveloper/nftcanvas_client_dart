@@ -13,6 +13,8 @@ class Config {
     this.teamWalletId = 'DkmfiWSC4mnPvfMXZY2CkT4skvFkGr4u5DwRX2htRvJ2',
     this.teamTokenAccountId = 'Esi6Z7reZt9NjZ2TeTFRXcTez1XA7764dE9bZoKCdjTb',
     this.mintPoolWalletId = 'ARamwbZzoaRjiEnHM2oVmD5bqPpGPNuxUuXWRzsacgaz',
+    this.maxPixelPerStakeTx = 18,
+    this.maxPixelPerUpdateStakingPixelsTx = 20,
   });
 
   final String programId;
@@ -26,6 +28,8 @@ class Config {
   final String teamWalletId;
   final String teamTokenAccountId;
   final String mintPoolWalletId;
+  final int maxPixelPerStakeTx;
+  final int maxPixelPerUpdateStakingPixelsTx;
 
   static const mainnet = Config();
 

@@ -16,7 +16,6 @@ Future<Instruction> mintPixel({
   return Instruction(
     programId: config.programId,
     accounts: [
-      AccountMeta.readonly(pubKey: config.programId, isSigner: false),
       AccountMeta.readonly(pubKey: config.systemProgramId, isSigner: false),
       AccountMeta.readonly(pubKey: config.rentSysvarId, isSigner: false),
       AccountMeta.writeable(pubKey: config.mintPoolWalletId, isSigner: false),
@@ -42,14 +41,10 @@ Future<Instruction> updatePixelColor({
   return Instruction(
     programId: config.programId,
     accounts: [
-      AccountMeta.readonly(pubKey: config.programId, isSigner: false),
       AccountMeta.writeable(pubKey: pixelAccountId, isSigner: false),
       AccountMeta.readonly(pubKey: ownerWallet, isSigner: true),
     ],
-    data: NftCanvasInstructionUpdatePixelColor(
-      index: index,
-      color: color,
-    ).pack(),
+    data: NftCanvasInstructionUpdatePixelColor(color: color).pack(),
   );
 }
 
@@ -68,7 +63,6 @@ Future<Instruction> sellPixel({
   return Instruction(
     programId: config.programId,
     accounts: [
-      AccountMeta.readonly(pubKey: config.programId, isSigner: false),
       AccountMeta.readonly(pubKey: config.tokenProgramId, isSigner: false),
       AccountMeta.writeable(pubKey: pixelAccountId, isSigner: false),
       AccountMeta.readonly(pubKey: config.teamTokenAccountId, isSigner: false),
@@ -91,10 +85,7 @@ Future<Instruction> sellPixel({
         isSigner: false,
       ),
     ],
-    data: NftCanvasInstructionSellPixel(
-      index: index,
-      price: price,
-    ).pack(),
+    data: NftCanvasInstructionSellPixel(price: price).pack(),
   );
 }
 
@@ -115,7 +106,6 @@ Future<Instruction> buyPixel({
   return Instruction(
     programId: config.programId,
     accounts: [
-      AccountMeta.readonly(pubKey: config.programId, isSigner: false),
       AccountMeta.readonly(pubKey: config.tokenProgramId, isSigner: false),
       AccountMeta.writeable(pubKey: pixelAccountId, isSigner: false),
       AccountMeta.writeable(pubKey: config.teamTokenAccountId, isSigner: false),
@@ -147,11 +137,7 @@ Future<Instruction> buyPixel({
         isSigner: false,
       ),
     ],
-    data: NftCanvasInstructionBuyPixel(
-      index: index,
-      price: price,
-      directOnly: directOnly,
-    ).pack(),
+    data: NftCanvasInstructionBuyPixel(price: price, directOnly: directOnly).pack(),
   );
 }
 
@@ -169,7 +155,6 @@ Future<Instruction> initStakePool({
   return Instruction(
     programId: config.programId,
     accounts: [
-      AccountMeta.readonly(pubKey: config.programId, isSigner: false),
       AccountMeta.readonly(pubKey: config.systemProgramId, isSigner: false),
       AccountMeta.readonly(pubKey: config.tokenProgramId, isSigner: false),
       AccountMeta.readonly(
@@ -197,7 +182,6 @@ Future<Instruction> updateStakePool({
   return Instruction(
     programId: config.programId,
     accounts: [
-      AccountMeta.readonly(pubKey: config.programId, isSigner: false),
       AccountMeta.readonly(pubKey: config.clockSysvarId, isSigner: false),
       AccountMeta.writeable(pubKey: config.teamWalletId, isSigner: true),
       AccountMeta.writeable(pubKey: stakePoolId, isSigner: false),
@@ -242,7 +226,6 @@ Future<Instruction> stake({
   return Instruction(
     programId: config.programId,
     accounts: [
-      AccountMeta.readonly(pubKey: config.programId, isSigner: false),
       AccountMeta.readonly(pubKey: config.systemProgramId, isSigner: false),
       AccountMeta.readonly(pubKey: config.tokenProgramId, isSigner: false),
       AccountMeta.readonly(
@@ -270,10 +253,9 @@ Future<Instruction> stake({
 Future<Instruction> unstake({
   required Config config,
   required String owner,
-  required String nftMint,
   required StakedPixels stakedPixelsState,
 }) async {
-  assert(nftMint == await stakedPixelsState.nftMint(config.programId));
+  final nftMint = await stakedPixelsState.nftMint(config.programId);
 
   final stakePoolId = await utils.getStakePoolId(programId: config.programId);
   final stakePoolTokenAccountId = await utils.getTokenAccountId(
@@ -297,7 +279,6 @@ Future<Instruction> unstake({
   return Instruction(
     programId: config.programId,
     accounts: [
-      AccountMeta.readonly(pubKey: config.programId, isSigner: false),
       AccountMeta.readonly(pubKey: config.tokenProgramId, isSigner: false),
       AccountMeta.readonly(pubKey: config.clockSysvarId, isSigner: false),
       AccountMeta.writeable(pubKey: stakePoolId, isSigner: false),
@@ -340,7 +321,6 @@ Future<Instruction> harvest({
   return Instruction(
     programId: config.programId,
     accounts: [
-      AccountMeta.readonly(pubKey: config.programId, isSigner: false),
       AccountMeta.readonly(pubKey: config.tokenProgramId, isSigner: false),
       AccountMeta.readonly(pubKey: config.clockSysvarId, isSigner: false),
       AccountMeta.writeable(pubKey: stakePoolId, isSigner: false),
@@ -398,7 +378,6 @@ Future<Instruction> updateStakingPixels({
   return Instruction(
     programId: config.programId,
     accounts: [
-      AccountMeta.readonly(pubKey: config.programId, isSigner: false),
       AccountMeta.readonly(pubKey: config.tokenProgramId, isSigner: false),
       AccountMeta.readonly(pubKey: config.clockSysvarId, isSigner: false),
       AccountMeta.writeable(pubKey: stakePoolId, isSigner: false),

@@ -42,11 +42,9 @@ class NftCanvasInstructionMintPixel extends NftCanvasInstruction {
 }
 
 class NftCanvasInstructionUpdatePixelColor extends NftCanvasInstruction {
-  final int index;
   final List<int> color;
 
   NftCanvasInstructionUpdatePixelColor({
-    required this.index,
     required this.color,
   }) : super._();
 
@@ -54,7 +52,6 @@ class NftCanvasInstructionUpdatePixelColor extends NftCanvasInstruction {
   List<int> pack() {
     final result = [
       1,
-      ...utils.packUInt(index, 4),
       ...color,
     ];
     return NftCanvasInstruction.formatPacked(result);
@@ -62,11 +59,9 @@ class NftCanvasInstructionUpdatePixelColor extends NftCanvasInstruction {
 }
 
 class NftCanvasInstructionSellPixel extends NftCanvasInstruction {
-  final int index;
   final int price;
 
   NftCanvasInstructionSellPixel({
-    required this.index,
     required this.price,
   }) : super._();
 
@@ -74,7 +69,6 @@ class NftCanvasInstructionSellPixel extends NftCanvasInstruction {
   List<int> pack() {
     final result = [
       2,
-      ...utils.packUInt(index, 4),
       ...utils.packUInt(price, 8),
     ];
     return NftCanvasInstruction.formatPacked(result);
@@ -82,12 +76,10 @@ class NftCanvasInstructionSellPixel extends NftCanvasInstruction {
 }
 
 class NftCanvasInstructionBuyPixel extends NftCanvasInstruction {
-  final int index;
   final int price;
   final bool directOnly;
 
   NftCanvasInstructionBuyPixel({
-    required this.index,
     required this.price,
     required this.directOnly,
   }) : super._();
@@ -96,7 +88,6 @@ class NftCanvasInstructionBuyPixel extends NftCanvasInstruction {
   List<int> pack() {
     final result = [
       3,
-      ...utils.packUInt(index, 4),
       ...utils.packUInt(price, 8),
       (directOnly) ? 1 : 0,
     ];
@@ -203,6 +194,16 @@ class NftCanvasInstructionUpdateStakingPixels extends NftCanvasInstruction {
       9,
       ...utils.packInt(pixelCount, 4),
     ];
+    return NftCanvasInstruction.formatPacked(result);
+  }
+}
+
+class NftCanvasInstructionUpdateStakedPixelsNftMetadata extends NftCanvasInstruction {
+  NftCanvasInstructionUpdateStakedPixelsNftMetadata() : super._();
+
+  @override
+  List<int> pack() {
+    final result = [10];
     return NftCanvasInstruction.formatPacked(result);
   }
 }
