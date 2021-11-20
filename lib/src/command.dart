@@ -338,10 +338,10 @@ Future<Instruction> harvest({
 Future<Instruction> updateStakingPixels({
   required Config config,
   required String owner,
-  required String nftMint,
   required StakedPixelsV2 stakedPixelsState,
   required int pixelCount,
 }) async {
+  final nftMint = await stakedPixelsState.nftMint(config.programId);
   final stakePoolId = await utils.getStakePoolId(programId: config.programId);
   final stakePoolTokenAccountId = await utils.getTokenAccountId(
       tokenProgramId: config.tokenProgramId,
