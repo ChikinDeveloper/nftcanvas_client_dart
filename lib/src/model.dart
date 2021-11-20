@@ -459,7 +459,7 @@ class StakedPixelsV2 extends StakedPixels {
   int getWidth() => width;
 
   @override
-  int getHeight() => 1 + (pixelCount ~/ width);
+  int getHeight() => 1 + ((pixelCount - 1) ~/ width);
 
   @override
   int getLockTime() => lockTime;
