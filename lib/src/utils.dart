@@ -131,8 +131,8 @@ Future<String> getNftMetadataAccountId({
   return solana.findProgramAddress(
     seeds: [
       utf8.encode('metadata'),
-      utf8.encode(metaplexTokenMetadataProgramId),
-      utf8.encode(nftMint),
+      solana.base58decode(metaplexTokenMetadataProgramId),
+      solana.base58decode(nftMint),
     ],
     programId: metaplexTokenMetadataProgramId,
   );
