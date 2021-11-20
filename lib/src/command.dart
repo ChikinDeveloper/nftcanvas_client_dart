@@ -390,6 +390,38 @@ Future<Instruction> updateStakingPixels({
       ...pixelIdList
           .map((e) => AccountMeta.writeable(pubKey: e, isSigner: false)),
     ],
-    data: NftCanvasInstructionHarvest().pack(),
+    data: NftCanvasInstructionUpdateStakingPixels(pixelCount: pixelCount).pack(),
+  );
+}
+
+Future<Instruction> updateStakedPixelsNftMetadata({
+  required Config config,
+  required String owner,
+  required StakedPixelsV2 stakedPixelsState,
+}) async {
+  final nftMint = await stakedPixelsState.nftMint(config.programId);
+  final programAuthority = await utils.getProgramAuthorityId(programId: config.programId);
+  final nftMetadata = await utils.getNftMetadataAccountId(metaplexTokenMetadataProgramId: config.metaplexTokenMetadataProgramId, nftMint: nftMint);
+  final ownerNftTokenAccountId = await utils.getTokenAccountId(
+      tokenProgramId: config.tokenProgramId,
+      associatedTokenProgramId: config.associatedTokenProgramId,
+      tokenMintId: nftMint,
+      ownerId: owner);
+  final stakedPixelsId = await utils.getStakedPixelsId(
+      programId: config.programId, nftMint: nftMint);
+  return Instruction(
+    programId: config.programId,
+    accounts: [
+      AccountMeta.readonly(pubKey: config.systemProgramId, isSigner: false),
+      AccountMeta.readonly(pubKey: config.metaplexTokenMetadataProgramId, isSigner: false),
+      AccountMeta.readonly(pubKey: config.rentSysvarId, isSigner: false),
+      AccountMeta.readonly(pubKey: programAuthority, isSigner: false),
+      AccountMeta.writeable(pubKey: owner, isSigner: true),
+      AccountMeta.writeable(pubKey: ownerNftTokenAccountId, isSigner: false),
+      AccountMeta.writeable(pubKey: nftMint, isSigner: false),
+      AccountMeta.writeable(pubKey: nftMetadata, isSigner: false),
+      AccountMeta.writeable(pubKey: stakedPixelsId, isSigner: false),
+    ],
+    data: NftCanvasInstructionUpdateStakedPixelsNftMetadata().pack(),
   );
 }
