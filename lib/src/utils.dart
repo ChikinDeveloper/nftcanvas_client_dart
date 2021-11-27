@@ -5,12 +5,13 @@ import 'dart:typed_data';
 
 import 'package:chikin_nft_canvas_client/chikin_nft_canvas_client.dart';
 import 'package:solana/solana.dart' as solana;
+import 'package:solana_js/solana_js.dart';
 
 Future<String> getPixelAccountId({
   required String programId,
   required int index,
 }) {
-  return solana.findProgramAddress(
+  return SolanaJsUtils.findProgramAddress(
     seeds: [
       solana.base58decode(programId),
       utf8.encode('pixel'),
@@ -23,7 +24,7 @@ Future<String> getPixelAccountId({
 Future<String> getTradePoolId({
   required String programId,
 }) {
-  return solana.findProgramAddress(
+  return SolanaJsUtils.findProgramAddress(
     seeds: [
       solana.base58decode(programId),
       utf8.encode('trade_pool'),
@@ -38,7 +39,7 @@ Future<String> getTokenAccountId({
   required String tokenMintId,
   required String ownerId,
 }) async {
-  return solana.findProgramAddress(
+  return SolanaJsUtils.findProgramAddress(
     seeds: [
       solana.base58decode(ownerId),
       solana.base58decode(tokenProgramId),
@@ -51,7 +52,7 @@ Future<String> getTokenAccountId({
 Future<String> getProgramAuthorityId({
   required String programId,
 }) {
-  return solana.findProgramAddress(
+  return SolanaJsUtils.findProgramAddress(
     seeds: [
       solana.base58decode(programId),
       utf8.encode('authority'),
@@ -63,7 +64,7 @@ Future<String> getProgramAuthorityId({
 Future<String> getStakePoolId({
   required String programId,
 }) {
-  return solana.findProgramAddress(
+  return SolanaJsUtils.findProgramAddress(
     seeds: [
       solana.base58decode(programId),
       utf8.encode('stake_pool'),
@@ -76,7 +77,7 @@ Future<String> getStakedPixelsId({
   required String programId,
   required String nftMint,
 }) {
-  return solana.findProgramAddress(
+  return SolanaJsUtils.findProgramAddress(
     seeds: [
       solana.base58decode(programId),
       solana.base58decode(nftMint),
@@ -94,7 +95,7 @@ Future<String> getStakedPixelsNftMintIdV1({
   required int height,
   required int nonce,
 }) {
-  return solana.findProgramAddress(
+  return SolanaJsUtils.findProgramAddress(
     seeds: [
       solana.base58decode(programId),
       packUInt(x, 4),
@@ -113,7 +114,7 @@ Future<String> getStakedPixelsNftMintIdV2({
   required int x,
   required int y,
 }) {
-  return solana.findProgramAddress(
+  return SolanaJsUtils.findProgramAddress(
     seeds: [
       solana.base58decode(programId),
       packUInt(x, 4),
@@ -128,7 +129,7 @@ Future<String> getNftMetadataAccountId({
   required String metaplexTokenMetadataProgramId,
   required String nftMint,
 }) {
-  return solana.findProgramAddress(
+  return SolanaJsUtils.findProgramAddress(
     seeds: [
       utf8.encode('metadata'),
       solana.base58decode(metaplexTokenMetadataProgramId),
@@ -285,7 +286,8 @@ const base62Alphabet =
 
 String packStakedPixelsNftMintCode(int x, int y) {
   final index = pixelPositionToIndex(x, y);
-  final indexBytes = packUInt(index, 4, maxFragmentValue: 62, endian: Endian.big);
+  final indexBytes =
+      packUInt(index, 4, maxFragmentValue: 62, endian: Endian.big);
   final result = StringBuffer();
   for (final byte in indexBytes) {
     result.write(base62Alphabet[byte]);
@@ -296,6 +298,7 @@ String packStakedPixelsNftMintCode(int x, int y) {
 Point<int> unpackStakedPixelsNftMintCode(String code) {
   final indexBytes =
       code.split('').map((e) => base62Alphabet.indexOf(e)).toList();
-  final index = unpackUInt(indexBytes, maxFragmentValue: 62, endian: Endian.big);
+  final index =
+      unpackUInt(indexBytes, maxFragmentValue: 62, endian: Endian.big);
   return pixelIndexToPosition(index);
 }

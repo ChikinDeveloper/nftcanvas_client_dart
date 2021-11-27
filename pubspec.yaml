@@ -8,9 +8,15 @@ environment:
   sdk: ">=2.12.0 <3.0.0"
 
 dependencies:
-  #
   solana:
-    git: https://github.com/ChikinDeveloper/dart-solana-lib
+    git:
+      url: https://github.com/ChikinDeveloper/ext_solana_dart
+      path: packages/solana
+      ref: cb998ece936f1abdac624cac9ee8985b9ad5e98d
+  solana_js:
+    git:
+      url: https://gitlab.com/ChikinDeveloper/dart_solana_js
+      ref: ad61f16575ed5d7423690b71ed88a8865828a6a6
 
 dev_dependencies:
   pedantic: ^1.10.0
