@@ -212,35 +212,34 @@ class NftCanvasInstructionUpdateStakedPixelsNftMetadata extends NftCanvasInstruc
 
 class Pixel {
   static const packedSize = 88;
-  static const packedSize2 = 47;
 
   final int index;
   final List<int> color;
   final List<int> ownerWallet;
   final int sellPrice;
-  // final PixelBuyInfo? bestBuyInfo;
+  final PixelBuyInfo? bestBuyInfo;
 
   Pixel({
     required this.index,
     required this.color,
     required this.ownerWallet,
     required this.sellPrice,
-    // required this.bestBuyInfo,
+    required this.bestBuyInfo,
   });
 
   static Pixel unpack(List<int> data) {
-    assert(data.length == packedSize || data.length == packedSize2, '${data.length} != $packedSize && ${data.length} != $packedSize2');
+    assert(data.length == packedSize, '${data.length} != $packedSize');
     return Pixel(
       index: utils.unpackUInt(data.sublist(0, 4)),
       color: data.sublist(4, 7),
       ownerWallet: data.sublist(7, 39),
       sellPrice: utils.unpackUInt(data.sublist(39, 47)),
-      // bestBuyInfo: (data[47] == 0)
-      //     ? null
-      //     : PixelBuyInfo(
-      //         price: utils.unpackUInt(data.sublist(48, 56)),
-      //         buyerWallet: data.sublist(56, 88),
-      //       ),
+      bestBuyInfo: (data[47] == 0)
+          ? null
+          : PixelBuyInfo(
+              price: utils.unpackUInt(data.sublist(48, 56)),
+              buyerWallet: data.sublist(56, 88),
+            ),
     );
   }
 }
