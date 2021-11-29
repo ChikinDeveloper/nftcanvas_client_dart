@@ -1,30 +1,27 @@
 import 'package:chikin_nft_canvas_client/src/config.dart';
 import 'package:chikin_nft_canvas_client/src/model.dart';
 import 'package:solana/solana.dart';
+import 'package:solana/src/rpc/dto/account_data/binary_account_data.dart';
+import 'package:solana/src/rpc/dto/filter.dart';
 
 import 'utils.dart' as utils;
 
 Future<Pixel?> getPixelByIndex({
   required Config config,
-  required RPCClient rpcClient,
+  required RpcClient rpcClient,
   required int index,
 }) async {
   final accountId =
       await utils.getPixelAccountId(programId: config.programId, index: index);
-  final account = await rpcClient.getAccountInfo(accountId);
+  final account = await rpcClient.getAccountInfo(accountId, encoding: Encoding.base64);
   if (account == null) return null;
-  final result =
-      account.data?.mapOrNull(fromBytes: (value) => Pixel.unpack(value.bytes));
-  if (result == null) {
-    throw Exception(
-        'client.getPixelByIndex : Failed to unpack account ${account.data?.runtimeType}');
-  }
+  final result = Pixel.unpack((account.data as BinaryAccountData).data);
   return result;
 }
 
 Future<List<Pixel?>> getPixelsByIndex({
   required Config config,
-  required RPCClient rpcClient,
+  required RpcClient rpcClient,
   required List<int> indexList,
 }) async {
   final accountIdList = <String>[];
@@ -33,92 +30,66 @@ Future<List<Pixel?>> getPixelsByIndex({
         programId: config.programId, index: index);
     accountIdList.add(accountId);
   }
-  final accountList = await rpcClient.getMultipleAccounts(accountIdList);
-  return accountList.map<Pixel?>((account) {
+  final accounts = await rpcClient.getMultipleAccounts(
+    accountIdList,
+    encoding: Encoding.base64,
+  );
+  return accounts.map<Pixel?>((account) {
     if (account == null) return null;
-    final result = account.data
-        ?.mapOrNull(fromBytes: (value) => Pixel.unpack(value.bytes));
-    if (result == null) {
-      throw Exception(
-          'client.getPixelsByIndex : Failed to unpack account ${account.runtimeType}');
-    }
+    final result = Pixel.unpack((account.data as BinaryAccountData).data);
     return result;
   }).toList();
 }
 
 Future<StakedPixels?> getStakedPixels(
-    {required RPCClient rpcClient, required String accountId}) async {
-  final account = await rpcClient.getAccountInfo(accountId);
+    {required RpcClient rpcClient, required String accountId}) async {
+  final account = await rpcClient.getAccountInfo(accountId, encoding: Encoding.base64);
   if (account == null) return null;
 
-  final result = account.data?.mapOrNull(fromBytes: (value) {
-    if (value.bytes.length == StakedPixelsV1.packedSize) {
-      return StakedPixelsV1.unpack(value.bytes);
-    } else if (value.bytes.length == StakedPixelsV2.packedSize) {
-      return StakedPixelsV2.unpack(value.bytes);
-    } else {
-      throw Exception();
-    }
-  });
-  if (result == null) {
-    throw Exception(
-        'client.getStakedPixels : Failed to unpack account ${account.data?.runtimeType}');
+  final data = account.data as BinaryAccountData;
+  if (data.data.length == StakedPixelsV1.packedSize) {
+    return StakedPixelsV1.unpack(data.data);
+  } else if (data.data.length == StakedPixelsV2.packedSize) {
+    return StakedPixelsV2.unpack(data.data);
+  } else {
+    throw Exception();
   }
-  return result;
 }
 
 Future<StakedPixelsV1?> getStakedPixelsV1(
-    {required RPCClient rpcClient, required String accountId}) async {
-  final account = await rpcClient.getAccountInfo(accountId);
+    {required RpcClient rpcClient, required String accountId}) async {
+  final account = await rpcClient.getAccountInfo(accountId, encoding: Encoding.base64);
   if (account == null) return null;
-  final result = account.data
-      ?.mapOrNull(fromBytes: (value) => StakedPixelsV1.unpack(value.bytes));
-  if (result == null) {
-    throw Exception(
-        'client.getStakedPixelsV1 : Failed to unpack account ${account.data?.runtimeType}');
-  }
+  final result =
+      StakedPixelsV1.unpack((account.data as BinaryAccountData).data);
   return result;
 }
 
 Future<StakedPixelsV2?> getStakedPixelsV2(
-    {required RPCClient rpcClient, required String accountId}) async {
-  final account = await rpcClient.getAccountInfo(accountId);
+    {required RpcClient rpcClient, required String accountId}) async {
+  final account = await rpcClient.getAccountInfo(accountId, encoding: Encoding.base64);
   if (account == null) return null;
-  final result = account.data
-      ?.mapOrNull(fromBytes: (value) => StakedPixelsV2.unpack(value.bytes));
-  if (result == null) {
-    throw Exception(
-        'client.getStakedPixelsV2 : Failed to unpack account ${account.data?.runtimeType}');
-  }
+  final result =
+      StakedPixelsV2.unpack((account.data as BinaryAccountData).data);
   return result;
 }
 
 Future<List<Pixel>> listPixels({
   required Config config,
-  required RPCClient rpcClient,
+  required RpcClient rpcClient,
   String? owner,
 }) async {
   final rawResult = await rpcClient.getProgramAccounts(
     config.programId,
     filters: [
-      {'dataSize': Pixel.packedSize},
-      if (owner != null)
-        {
-          'memcmp': {
-            'offset': 7,
-            'bytes': owner,
-          }
-        }
+      Filter.dataSize(Pixel.packedSize),
+      if (owner != null) Filter.memcmp(offset: 7, bytes: owner),
     ],
+    encoding: Encoding.base64,
   );
   final result = <Pixel>[];
   for (final item in rawResult) {
-    final pixel = item.account.data
-        ?.mapOrNull(fromBytes: (value) => Pixel.unpack(value.bytes));
-    if (pixel == null) {
-      throw Exception(
-          'client.getStakedPixelsV2 : Failed to unpack account ${item.account.data?.runtimeType}');
-    }
+    final pixel = Pixel.unpack((item.account.data as BinaryAccountData).data);
     result.add(pixel);
   }
   return result;
